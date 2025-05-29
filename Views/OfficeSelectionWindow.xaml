@@ -1,0 +1,141 @@
+﻿<Window
+    x:Class="Programmka.Views.OfficeSelectionWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:hc="https://handyorg.github.io/handycontrol"
+    Width="480"
+    Height="270"
+    Background="Transparent"
+    AllowsTransparency="True"
+    MouseLeftButtonDown="Window_MouseLeftButtonDown"
+    ResizeMode="NoResize"
+    ShowInTaskbar="False"
+    WindowStartupLocation="CenterScreen"
+    WindowStyle="None">
+    <Window.Resources>
+        <Style BasedOn="{StaticResource ToggleButtonSwitchBaseStyle}" TargetType="ToggleButton">
+            <Setter Property="Height" Value="20" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="IsChecked" Value="True" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Cursor" Value="Hand" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+    </Window.Resources>
+    <Grid Background="Transparent">
+        <Border Background="#54626f" CornerRadius="5" BorderThickness="3" BorderBrush="Black">
+            <Grid >
+                <Button
+                    Width="26"
+                    Height="26"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Click="CloseClick"
+                    Content="X"
+                    Cursor="Hand" />
+                <TextBlock
+                    Width="200"
+                    Margin="20,4,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Text="Выберите продукты Office" />
+                <Border
+                    Height="1"
+                    Margin="0,27,0,0"
+                    VerticalAlignment="Top"
+                    BorderBrush="Black"
+                    BorderThickness="1" />
+                <StackPanel
+                    Width="200"
+                    Margin="15,45,0,0"
+                    HorizontalAlignment="Left">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0,0,65,0" Text="Access  " />
+                        <ToggleButton
+                            x:Name="AccessToggle"
+                            Checked="AccessSelection"
+                            Unchecked="AccessSelection" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Skype for Business" />
+                        <ToggleButton
+                            x:Name="SkypeToggle"
+                            Checked="SkypeSelection"
+                            Unchecked="SkypeSelection" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0,0,54,0" Text="OneNote " />
+                        <ToggleButton
+                            x:Name="OneNoteToggle"
+                            Checked="OneNoteSelection"
+                            Unchecked="OneNoteSelection" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0,0,41,0" Text="PowerPoint " />
+                        <ToggleButton
+                            x:Name="PowerPointToggle"
+                            Checked="PowerPointSelection"
+                            Unchecked="PowerPointSelection" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0,0,68,0" Text="Word   " />
+                        <ToggleButton
+                            x:Name="WordToggle"
+                            Checked="WordSelection"
+                            Unchecked="WordSelection" />
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel
+                    Width="225"
+                    Margin="0,45,0,0"
+                    HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0,0,80,0" Text="Excel " />
+                        <ToggleButton
+                            x:Name="ExcelToggle"
+                            Checked="ExcelSelection"
+                            Unchecked="ExcelSelection" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0,0,2,0" Text="OneDrive Desktop" />
+                        <ToggleButton
+                            x:Name="OneDriveDesktopToggle"
+                            Checked="OneDriveDesktopSelection"
+                            Unchecked="OneDriveDesktopSelection" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0,0,65,0" Text="Outlook" />
+                        <ToggleButton
+                            x:Name="OutlookToggle"
+                            Checked="OutlookSelection"
+                            Unchecked="OutlookSelection" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0,0,58,0" Text="Publisher" />
+                        <ToggleButton
+                            x:Name="PublisherToggle"
+                            Checked="PublisherSelection"
+                            Unchecked="PublisherSelection" />
+                    </StackPanel>
+                </StackPanel>
+                <Button
+                    x:Name="ConfirmButton"
+                    Width="100"
+                    Height="30"
+                    Margin="0,0,0,10"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    Click="Confirm"
+                    Content="Подтвердить"
+                    Cursor="Hand"
+                    Style="{DynamicResource ButtonSuccess}" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

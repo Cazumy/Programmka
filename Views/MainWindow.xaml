@@ -1,0 +1,489 @@
+﻿<Window
+    x:Class="Programmka.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:hc="https://handyorg.github.io/handycontrol"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:styles="clr-namespace:Programmka.Styles"
+    Title="Programmka"
+    Width="1100"
+    Height="680"
+    MinWidth="1000"
+    MinHeight="600"
+    AllowsTransparency="True"
+    Background="Transparent"
+    MouseLeftButtonDown="DragWindow"
+    ResizeMode="NoResize"
+    SnapsToDevicePixels="True"
+    UseLayoutRounding="True"
+    WindowStartupLocation="CenterScreen"
+    WindowStyle="None">
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation
+                        AutoReverse="False"
+                        Storyboard.TargetProperty="(Window.Opacity)"
+                        From="0.0"
+                        To="1.0"
+                        Duration="0:0:.5" />
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+    <Window.Resources>
+        <Style TargetType="{x:Type Window}">
+            <Setter Property="FontFamily" Value="Roboto" />
+        </Style>
+        <styles:BoolToVisibilityInverseConverter x:Key="BoolToVisInverse" />
+    </Window.Resources>
+    <Grid>
+        <Border
+            Width="44"
+            Height="38"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Panel.ZIndex="1"
+            Background="Transparent"
+            CornerRadius="8"
+            Cursor="Hand"
+            PreviewMouseLeftButtonDown="CloseWindow">
+            <Border.Triggers>
+                <EventTrigger RoutedEvent="MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation
+                                Storyboard.TargetName="CloseText"
+                                Storyboard.TargetProperty="Foreground.Color"
+                                To="#626255"
+                                Duration="0:0:0.085" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseLeave">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation
+                                Storyboard.TargetName="CloseText"
+                                Storyboard.TargetProperty="Foreground.Color"
+                                To="#C6C6BD"
+                                Duration="0:0:0.1" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Border.Triggers>
+            <TextBlock
+                x:Name="CloseText"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontSize="20"
+                Foreground="#C6C6BD"
+                Text="X" />
+        </Border>
+        <Border
+            BorderBrush="#10100E"
+            BorderThickness="4"
+            CornerRadius="8">
+            <Border.Background>
+                <RadialGradientBrush>
+                    <GradientStop Offset="1" Color="#2B2B26" />
+                    <GradientStop Offset="0" Color="#FF61615F" />
+                </RadialGradientBrush>
+            </Border.Background>
+            <Grid>
+                <Border
+                    Height="38"
+                    VerticalAlignment="Top"
+                    Background="#FF1B1B18"
+                    CornerRadius="4 4 0 0">
+                    <TextBlock
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center"
+                        FontSize="18"
+                        Foreground="White"
+                        Text="Programmka" />
+                </Border>
+                <Grid
+                    Height="64"
+                    Margin="0,38,0,0"
+                    VerticalAlignment="Top">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="410" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="64" />
+                        <ColumnDefinition Width="64" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        x:Name="TabItemDescription"
+                        Grid.Column="1"
+                        Height="38"
+                        Margin="0,10,0,0"
+                        FontSize="18"
+                        Foreground="White"
+                        Text="{Binding TabItemDescription, Mode=OneWay, NotifyOnTargetUpdated=True}"
+                        TextAlignment="Center"
+                        TextWrapping="WrapWithOverflow" />
+                    <hc:LoadingCircle
+                        x:Name="LoadingCircleObject"
+                        Grid.Column="2"
+                        Width="24"
+                        Height="24"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        IsRunning="True"
+                        Visibility="{Binding LoadingStatus, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <Image
+                        Grid.Column="3"
+                        Margin="6"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Source="pack://application:,,,/Programmka;component/Resources/Images/win10.png" />
+                </Grid>
+                <TabControl
+                    Margin="16,38,16,0"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    TabStripPlacement="Top">
+                    <TabItem x:Name="BaseTweaksItem" Tag="pack://application:,,,/Programmka;component/Resources/Images/home.png">
+                        <StackPanel
+                            Margin="0,0,40,0"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+                            <Grid>
+                                <ContentControl
+                                    styles:TextProperties.StatusText="{Binding ExeNotifications.StatusText}"
+                                    Content="UAC уведомления"
+                                    Style="{StaticResource ToggleButtonBackgroundStyle}"
+                                    Tag="pack://application:,,,/Programmka;component/Resources/Images/exeNotifications.png" />
+                                <ToggleButton IsChecked="{Binding ExeNotifications.IsChecked}" />
+                            </Grid>
+                            <Grid>
+                                <ContentControl
+                                    styles:TextProperties.StatusText="{Binding Hibernation.StatusText}"
+                                    Content="Гибернация"
+                                    Style="{StaticResource ToggleButtonBackgroundStyle}"
+                                    Tag="pack://application:,,,/Programmka;component/Resources/Images/hibernation.png" />
+                                <ToggleButton IsChecked="{Binding Hibernation.IsChecked}" />
+                            </Grid>
+                            <Grid>
+                                <ContentControl
+                                    styles:TextProperties.StatusText="{Binding MouseAcceleration.StatusText}"
+                                    Content="Акселерация мыши"
+                                    Style="{StaticResource ToggleButtonBackgroundStyle}"
+                                    Tag="pack://application:,,,/Programmka;component/Resources/Images/mouseAcceleration.png" />
+                                <ToggleButton IsChecked="{Binding MouseAcceleration.IsChecked}" />
+                            </Grid>
+                            <Grid>
+                                <ContentControl
+                                    styles:TextProperties.StatusText="{Binding KeySticking.StatusText}"
+                                    Content="Залипание клавиш"
+                                    Style="{StaticResource ToggleButtonBackgroundStyle}"
+                                    Tag="pack://application:,,,/Programmka;component/Resources/Images/keySticking.png" />
+                                <ToggleButton IsChecked="{Binding KeySticking.IsChecked}" />
+                            </Grid>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem x:Name="FileExplorerItem" Tag="pack://application:,,,/Programmka;component/Resources/Images/file_explorer.png">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="6*" />
+                                <ColumnDefinition Width="4*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid
+                                x:Name="ExplorerShowcase"
+                                Grid.Column="0"
+                                Margin="10,0,0,0"
+                                VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="3*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1.31*" />
+                                    <RowDefinition Height="8*" />
+                                    <RowDefinition Height=".5*" />
+                                </Grid.RowDefinitions>
+                                <Image
+                                    Grid.RowSpan="3"
+                                    Grid.ColumnSpan="2"
+                                    Panel.ZIndex="-1"
+                                    Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/explorer_noex.png"
+                                    Stretch="Uniform" />
+                                <Image
+                                    Grid.RowSpan="3"
+                                    Grid.ColumnSpan="2"
+                                    Panel.ZIndex="1"
+                                    Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/explorer_ex.png"
+                                    Stretch="Uniform"
+                                    Visibility="{Binding FileExtensions.IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                <Grid
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="2" />
+                                <StackPanel Grid.Row="1" Grid.Column="0">
+                                    <Image
+                                        Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/qa.png"
+                                        Stretch="Uniform"
+                                        Visibility="{Binding QuickAccess.IsChecked, Converter={StaticResource BoolToVisInverse}}" />
+                                    <Image Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/head.png" Stretch="Uniform" />
+                                    <Image
+                                        Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/3d.png"
+                                        Stretch="Uniform"
+                                        Visibility="{Binding Objects3D.IsChecked, Converter={StaticResource BoolToVisInverse}}" />
+                                    <Image Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/bot.png" Stretch="Uniform" />
+                                    <Image
+                                        Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/dd.png"
+                                        Stretch="Uniform"
+                                        Visibility="{Binding DiskDuplicate.IsChecked, Converter={StaticResource BoolToVisInverse}}" />
+                                    <Image
+                                        Grid.Row="6"
+                                        Grid.Column="0"
+                                        Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/ni.png"
+                                        Stretch="Uniform"
+                                        Visibility="{Binding NetworkIcon.IsChecked, Converter={StaticResource BoolToVisInverse}}" />
+                                </StackPanel>
+                            </Grid>
+                            <StackPanel
+                                Grid.Column="1"
+                                Margin="20,0,20,0"
+                                VerticalAlignment="Center">
+                                <Grid>
+                                    <ContentControl
+                                        styles:TextProperties.StatusText="{Binding DiskDuplicate.StatusText}"
+                                        Content="Дубликаты дисков"
+                                        Style="{StaticResource ToggleButtonBackgroundStyle}"
+                                        Tag="pack://application:,,,/Programmka;component/Resources/Images/disk.png" />
+                                    <ToggleButton IsChecked="{Binding DiskDuplicate.IsChecked}" />
+                                </Grid>
+                                <Grid>
+                                    <ContentControl
+                                        styles:TextProperties.StatusText="{Binding QuickAccess.StatusText}"
+                                        Content="Пункт &quot;Быстрый доступ&quot;"
+                                        Style="{StaticResource ToggleButtonBackgroundStyle}"
+                                        Tag="pack://application:,,,/Programmka;component/Resources/Images/quick_access.png" />
+                                    <ToggleButton IsChecked="{Binding QuickAccess.IsChecked}" />
+                                </Grid>
+                                <Grid>
+                                    <ContentControl
+                                        styles:TextProperties.StatusText="{Binding Objects3D.StatusText}"
+                                        Content="Папка &quot;Объёмные объекты&quot;"
+                                        Style="{StaticResource ToggleButtonBackgroundStyle}"
+                                        Tag="pack://application:,,,/Programmka;component/Resources/Images/3d_objects.png" />
+                                    <ToggleButton IsChecked="{Binding Objects3D.IsChecked}" />
+                                </Grid>
+                                <Grid>
+                                    <ContentControl
+                                        styles:TextProperties.StatusText="{Binding NetworkIcon.StatusText}"
+                                        Content="Значок &quot;Сеть&quot;"
+                                        Style="{StaticResource ToggleButtonBackgroundStyle}"
+                                        Tag="pack://application:,,,/Programmka;component/Resources/Images/network.png" />
+                                    <ToggleButton IsChecked="{Binding NetworkIcon.IsChecked}" />
+                                </Grid>
+                                <Grid>
+                                    <ContentControl
+                                        styles:TextProperties.StatusText="{Binding FileExtensions.StatusText}"
+                                        Content="Расширения файлов"
+                                        Style="{StaticResource ToggleButtonBackgroundStyle}"
+                                        Tag="pack://application:,,,/Programmka;component/Resources/Images/fileExtensions.png" />
+                                    <ToggleButton IsChecked="{Binding FileExtensions.IsChecked}" />
+                                </Grid>
+                                <Button Command="{Binding ReloadExplorerCommand}" Content="Перезагрузить проводник" />
+                            </StackPanel>
+                        </Grid>
+                    </TabItem>
+                    <TabItem x:Name="DesktopItem" Tag="pack://application:,,,/Programmka;component/Resources/Images/desktop.png">
+                        <StackPanel Orientation="Horizontal">
+                            <Border
+                                x:Name="DesktopShowcase"
+                                Width="590"
+                                Margin="10,0,30,0"
+                                VerticalAlignment="Center"
+                                BorderBrush="#14110c"
+                                BorderThickness="2">
+                                <Grid>
+                                    <Image
+                                        RenderOptions.BitmapScalingMode="HighQuality"
+                                        Source="{Binding WallpaperImageSource}"
+                                        Stretch="Uniform"
+                                        Visibility="{Binding WallpaperCompression.IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    <Image
+                                        RenderOptions.BitmapScalingMode="HighQuality"
+                                        Source="{Binding CompressedWallpaperImageSource}"
+                                        Stretch="Uniform"
+                                        Visibility="{Binding WallpaperCompression.IsChecked, Converter={StaticResource BoolToVisInverse}}" />
+                                    <Border
+                                        x:Name="HighlightColorImage"
+                                        Width="200"
+                                        Height="100"
+                                        Margin="0,0,60,0"
+                                        HorizontalAlignment="Right"
+                                        Background="{Binding BackgroundBrush}"
+                                        BorderBrush="{Binding BorderBrush}"
+                                        BorderThickness="1"
+                                        Cursor="" />
+                                    <Image
+                                        Width="30"
+                                        Margin="10,10,0,0"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Top"
+                                        Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/msedge.png" />
+                                    <Image
+                                        Width="10"
+                                        Margin="10,26,0,0"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Top"
+                                        Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/labelarrow.png"
+                                        Visibility="{Binding LabelArrows.IsChecked, Converter={StaticResource BoolToVisInverse}}" />
+                                </Grid>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <Grid>
+                                    <ContentControl
+                                        styles:TextProperties.StatusText="{Binding LabelArrows.StatusText}"
+                                        Content="Стрелки на ярлыках"
+                                        Style="{StaticResource ToggleButtonBackgroundStyle}"
+                                        Tag="pack://application:,,,/Programmka;component/Resources/Images/label.png" />
+                                    <ToggleButton IsChecked="{Binding LabelArrows.IsChecked}" />
+                                </Grid>
+                                <Grid>
+                                    <ContentControl
+                                        styles:TextProperties.StatusText="{Binding WallpaperCompression.StatusText}"
+                                        Content="Сжатие обоев рабочего стола"
+                                        Style="{StaticResource ToggleButtonBackgroundStyle}"
+                                        Tag="pack://application:,,,/Programmka;component/Resources/Images/WallpaperCompression.png" />
+                                    <ToggleButton IsChecked="{Binding WallpaperCompression.IsChecked}" />
+                                </Grid>
+                                <Grid Height="232" Margin="0,0,0,10">
+                                    <hc:ColorPicker SelectedBrush="{Binding SelectedBrush, Mode=TwoWay}" x:Name="ColorPicker"/>
+                                    <Border
+                                        Width="148"
+                                        Height="21"
+                                        Margin="0,0,81,58"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Bottom"
+                                        Background="White" />
+                                </Grid>
+                                <Button
+                                    Width="200"
+                                    Height="30"
+                                    Margin="0,0,0,10"
+                                    Command="{Binding ChangeHighlightColorCommand}"
+                                    CommandParameter="{Binding SelectedBrush, ElementName=ColorPicker}"
+                                    Content="Поменять цвет выделения" />
+                            </StackPanel>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem x:Name="ActivationItem" Tag="pack://application:,,,/Programmka;component/Resources/Images/activation.png">
+                        <StackPanel Margin="30,30,500,200">
+                            <Button
+                                Margin="0,0,0,20"
+                                Command="{Binding ActivateWindowsCommand}"
+                                Content="Запустить скрипт активации Windows\Office" />
+                            <Button
+                                Margin="0,0,0,20"
+                                Command="{Binding ActivateWinRarCommand}"
+                                Content="Активировать WinRar" />
+                            <Button Command="{Binding BecameAdminWin10Command}" Content="Сделать текущего пользователя администратором" />
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem x:Name="FixesItem" Tag="pack://application:,,,/Programmka;component/Resources/Images/fix.png">
+                        <StackPanel
+                            Width="700"
+                            Margin="0,30,30,0"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top">
+                            <ContentControl
+                                Width="Auto"
+                                Content="Внутренние диски SATA отображаются как съемные носители"
+                                Style="{StaticResource ToggleButtonBackgroundStyle}" />
+                            <Button
+                                Width="100"
+                                Margin="0,-56,10,0"
+                                HorizontalAlignment="Right"
+                                Command="{Binding FixHardDisksCommand}"
+                                Content="Исправить" />
+
+                            <ContentControl
+                                Width="Auto"
+                                Content="Пропали иконки, остались только имена ярлыков и папок"
+                                Style="{StaticResource ToggleButtonBackgroundStyle}" />
+                            <Button
+                                Width="100"
+                                Margin="0,-56,10,0"
+                                HorizontalAlignment="Right"
+                                Command="{Binding ReturnLabelArrowsCommand}"
+                                Content="Исправить" />
+
+                            <Button
+                                Width="260"
+                                Margin="0,20,0,0"
+                                Command="{Binding RepairSystemCommand}"
+                                Content="Восстановить системные файлы" />
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem x:Name="Downloads" Tag="pack://application:,,,/Programmka;component/Resources/Images/download.png">
+                        <StackPanel
+                            Height="166"
+                            Margin="20,20,0,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top">
+                            <Button
+                                Width="200"
+                                Command="{Binding DownloadOfficeCommand}"
+                                Content="Перейти к установке Office" />
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Tag="pack://application:,,,/Programmka;component/Resources/Images/cleanup.png">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                <i:InvokeCommandAction Command="{Binding UpdateTempSizeTextCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <Grid>
+                            <StackPanel
+                                Margin="10"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Orientation="Horizontal">
+                                <Button
+                                    Width="220"
+                                    Height="40"
+                                    Command="{Binding CleanupTempCommand}"
+                                    Content="Очистка временных файлов" />
+                                <TextBlock
+                                    Margin="40,0,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="16"
+                                    Foreground="White"
+                                    Text="Доступно для очистки - " />
+                                <TextBlock
+                                    x:Name="TempSizeText"
+                                    Width="90"
+                                    Height="20"
+                                    FontSize="16"
+                                    Foreground="White"
+                                    Text="{Binding TempSizeText}" />
+                            </StackPanel>
+                            <StackPanel
+                                Width="220"
+                                Height="200"
+                                Margin="10,0,0,0"
+                                HorizontalAlignment="Left">
+                                <Button
+                                    Width="210"
+                                    Margin="0,0,0,10"
+                                    Command="{Binding CheckWinSxSCommand}"
+                                    Content="Проверка хранилища WinSxS" />
+                                <Button
+                                    Width="210"
+                                    Command="{Binding CleanupWinSxSCommand}"
+                                    Content="Очистка хранилища WinSxS" />
+                            </StackPanel>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
