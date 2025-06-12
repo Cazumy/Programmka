@@ -27,6 +27,7 @@ public partial class MainWindow : Window
 
         WindowChrome.SetWindowChrome(this, chrome);
     }
+
     private void MainWindow_Loaded(object sender, RoutedEventArgs e) => Closing += MainWindow_Closing;
     private void DragWindow(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {

@@ -14,8 +14,9 @@
     Background="#01FFFFFF"
     MouseLeftButtonDown="DragWindow"
     SnapsToDevicePixels="True"
+    ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen"
-    WindowStyle="None" Cursor="">
+    WindowStyle="None">
     <Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
             <BeginStoryboard>
@@ -191,7 +192,8 @@
                             <Grid
                                 Grid.Column="0"
                                 Margin="10,0,0,0"
-                                VerticalAlignment="Center">
+                                VerticalAlignment="Center"
+                                ClipToBounds="True">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="3*" />
@@ -201,18 +203,17 @@
                                     <RowDefinition Height="8*" />
                                     <RowDefinition Height=".5*" />
                                 </Grid.RowDefinitions>
-                                <Image
-                                    Grid.RowSpan="3"
-                                    Grid.ColumnSpan="2"
-                                    Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/explorer_noex.png"
-                                    Stretch="Uniform" />
-                                <Image
-                                    Grid.RowSpan="3"
-                                    Grid.ColumnSpan="2"
-                                    Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/explorer_ex.png"
-                                    Stretch="Uniform"
-                                    Visibility="{Binding FileExtensions.IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                <StackPanel Grid.Row="1" Grid.Column="0" VerticalAlignment="Top">
+                                <Grid Grid.RowSpan="3" Grid.ColumnSpan="2">
+                                    <Image Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/explorer_noex.png" Stretch="Uniform" />
+                                    <Image
+                                        Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/explorer_ex.png"
+                                        Stretch="Uniform"
+                                        Visibility="{Binding FileExtensions.IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                </Grid>
+                                <StackPanel
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    VerticalAlignment="Top">
                                     <Image
                                         Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/qa.png"
                                         Stretch="Uniform"
@@ -235,7 +236,7 @@
                                         Visibility="{Binding NetworkIcon.IsChecked, Converter={StaticResource BoolToVisInverse}}" />
                                 </StackPanel>
                             </Grid>
-                            
+
                             <StackPanel
                                 Grid.Column="1"
                                 Margin="20,0,20,0"

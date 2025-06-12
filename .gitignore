@@ -13,6 +13,11 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
+Programmka_TemporaryKey.pfx
+Programmka.csproj.user
+
+Properties/PublishProfiles/
+
 .vs/
 Properties/
 *.user
