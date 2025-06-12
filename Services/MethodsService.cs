@@ -199,7 +199,7 @@ namespace Programmka.Services
         {
             const string subkey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced";
             const string key = "HideFileExt";
-            return RegeditService.ContainsRegValue<int>(RegistryHive.CurrentUser, subkey, key);
+            return RegeditService.ContainsRegValue(RegistryHive.CurrentUser, subkey, key, "");
         }
         #endregion
         #region desktop

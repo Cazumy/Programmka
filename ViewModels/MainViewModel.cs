@@ -110,9 +110,9 @@ namespace Programmka.ViewModels
             CompressedWallpaperImageSource = paths.Item2;
         }
         [ObservableProperty]
-        private Brush selectedBrush;
+        private SolidColorBrush selectedBrush;
 
-        partial void OnSelectedBrushChanged(Brush value)
+        partial void OnSelectedBrushChanged(SolidColorBrush value)
         {
             OnPropertyChanged(nameof(BorderBrush));
             OnPropertyChanged(nameof(BackgroundBrush));

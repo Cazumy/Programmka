@@ -4,20 +4,18 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
     xmlns:styles="clr-namespace:Programmka.Styles"
     Title="Programmka"
     Width="1100"
     Height="680"
-    MinWidth="1000"
-    MinHeight="600"
-    AllowsTransparency="True"
-    Background="Transparent"
+    MinWidth="1100"
+    MinHeight="680"
+    Background="#01FFFFFF"
     MouseLeftButtonDown="DragWindow"
-    ResizeMode="NoResize"
     SnapsToDevicePixels="True"
-    UseLayoutRounding="True"
     WindowStartupLocation="CenterScreen"
-    WindowStyle="None">
+    WindowStyle="None" Cursor="">
     <Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
             <BeginStoryboard>
@@ -42,11 +40,11 @@
         <Border
             Width="44"
             Height="38"
+            Margin="1"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Panel.ZIndex="1"
-            Background="Transparent"
-            CornerRadius="8"
+            shell:WindowChrome.IsHitTestVisibleInChrome="True"
             Cursor="Hand"
             PreviewMouseLeftButtonDown="CloseWindow">
             <Border.Triggers>
@@ -84,7 +82,7 @@
         <Border
             BorderBrush="#10100E"
             BorderThickness="4"
-            CornerRadius="8">
+            CornerRadius="15">
             <Border.Background>
                 <RadialGradientBrush>
                     <GradientStop Offset="1" Color="#2B2B26" />
@@ -96,7 +94,7 @@
                     Height="38"
                     VerticalAlignment="Top"
                     Background="#FF1B1B18"
-                    CornerRadius="4 4 0 0">
+                    CornerRadius="6 6 0 0">
                     <TextBlock
                         Margin="12,0,0,0"
                         VerticalAlignment="Center"
@@ -191,7 +189,6 @@
                                 <ColumnDefinition Width="4*" />
                             </Grid.ColumnDefinitions>
                             <Grid
-                                x:Name="ExplorerShowcase"
                                 Grid.Column="0"
                                 Margin="10,0,0,0"
                                 VerticalAlignment="Center">
@@ -207,21 +204,15 @@
                                 <Image
                                     Grid.RowSpan="3"
                                     Grid.ColumnSpan="2"
-                                    Panel.ZIndex="-1"
                                     Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/explorer_noex.png"
                                     Stretch="Uniform" />
                                 <Image
                                     Grid.RowSpan="3"
                                     Grid.ColumnSpan="2"
-                                    Panel.ZIndex="1"
                                     Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/explorer_ex.png"
                                     Stretch="Uniform"
-                                    Visibility="{Binding FileExtensions.IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                <Grid
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Grid.ColumnSpan="2" />
-                                <StackPanel Grid.Row="1" Grid.Column="0">
+                                    Visibility="{Binding FileExtensions.IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <StackPanel Grid.Row="1" Grid.Column="0" VerticalAlignment="Top">
                                     <Image
                                         Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/qa.png"
                                         Stretch="Uniform"
@@ -244,6 +235,7 @@
                                         Visibility="{Binding NetworkIcon.IsChecked, Converter={StaticResource BoolToVisInverse}}" />
                                 </StackPanel>
                             </Grid>
+                            
                             <StackPanel
                                 Grid.Column="1"
                                 Margin="20,0,20,0"
@@ -355,7 +347,7 @@
                                     <ToggleButton IsChecked="{Binding WallpaperCompression.IsChecked}" />
                                 </Grid>
                                 <Grid Height="232" Margin="0,0,0,10">
-                                    <hc:ColorPicker SelectedBrush="{Binding SelectedBrush, Mode=TwoWay}" x:Name="ColorPicker"/>
+                                    <hc:ColorPicker x:Name="ColorPicker" SelectedBrush="{Binding SelectedBrush, Mode=TwoWay}" />
                                     <Border
                                         Width="148"
                                         Height="21"
