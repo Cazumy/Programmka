@@ -1,9 +1,7 @@
 ﻿using MahApps.Metro.Controls;
 using Programmka.Services;
 using Programmka.ViewModels;
-using System;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Shell;
 
 namespace Programmka.Views;

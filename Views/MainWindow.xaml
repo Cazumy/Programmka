@@ -13,8 +13,8 @@
     MinHeight="680"
     Background="#01FFFFFF"
     MouseLeftButtonDown="DragWindow"
-    SnapsToDevicePixels="True"
     ResizeMode="NoResize"
+    SnapsToDevicePixels="True"
     WindowStartupLocation="CenterScreen"
     WindowStyle="None">
     <Window.Triggers>
@@ -101,7 +101,7 @@
                         VerticalAlignment="Center"
                         FontSize="18"
                         Foreground="White"
-                        Text="Programmka" />
+                        Text="Programmka 1.0.1" />
                 </Border>
                 <Grid
                     Height="64"
