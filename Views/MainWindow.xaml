@@ -96,12 +96,21 @@
                     VerticalAlignment="Top"
                     Background="#FF1B1B18"
                     CornerRadius="6 6 0 0">
-                    <TextBlock
-                        Margin="12,0,0,0"
-                        VerticalAlignment="Center"
-                        FontSize="18"
-                        Foreground="White"
-                        Text="Programmka 1.0.1" />
+                    <Grid>
+                        <TextBlock
+                            Width="150px"
+                            Margin="12,0,0,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            FontSize="18"
+                            Foreground="White"
+                            Text="Programmka 1.0.1" />
+                        <Button
+                            Width="200"
+                            Command="{Binding UpdateAppCommand}"
+                            Content="Update"
+                            Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" Cursor="Hand" />
+                    </Grid>
                 </Border>
                 <Grid
                     Height="64"
