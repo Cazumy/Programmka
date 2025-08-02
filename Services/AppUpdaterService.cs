@@ -8,7 +8,7 @@ namespace Programmka.Services;
 
 public static class AppUpdaterService
 {
-    private const string VersionCheckUrl = "https://github.com/Cazumy/Programmka/version.json";
+    private const string VersionCheckUrl = "https://raw.githubusercontent.com/Cazumy/Programmka/refs/heads/main/version.json";
 
     public static async Task<UpdateInfo?> CheckForUpdateAsync()
     {
