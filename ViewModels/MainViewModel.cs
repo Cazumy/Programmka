@@ -20,13 +20,14 @@ namespace Programmka.ViewModels
         [ObservableProperty]
         private bool loadingStatus;
         [ObservableProperty]
-        private bool updateAvailable = AppUpdaterService.CheckForUpdateAsync != null;
+        private bool updateAvailable;
         public MainViewModel()
         {
             CommandMiddleware.SetStatus = status => TabItemDescription = status;
             SetWallpaperImage();
             SetBrush();
             UpdateTempSizeText();
+            CheckUpdateAsync();
         }
         [RelayCommand]
         private async Task UpdateApp()
@@ -35,6 +36,11 @@ namespace Programmka.ViewModels
             {
                 await AppUpdaterService.ApplyUpdateAsync(await AppUpdaterService.CheckForUpdateAsync());
             }
+        }
+        private async void CheckUpdateAsync()
+        {
+            var update = await AppUpdaterService.CheckForUpdateAsync();
+            UpdateAvailable = update != null;
         }
         #region tweaks
         #region base

@@ -39,6 +39,7 @@
     </Window.Resources>
     <Grid>
         <Border
+            x:Name="CloseButton"
             Width="44"
             Height="38"
             Margin="1"
@@ -108,8 +109,9 @@
                         <Button
                             Width="200"
                             Command="{Binding UpdateAppCommand}"
-                            Content="Update"
-                            Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" Cursor="Hand" />
+                            Content="Update available"
+                            Cursor="Hand"
+                            Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     </Grid>
                 </Border>
                 <Grid

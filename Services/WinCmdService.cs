@@ -50,6 +50,22 @@ namespace Programmka.Services
                 process.WaitForExit();
             }
         }
+        public static Task RunInCMDNoWait(string command, bool visible = false)
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = $"/c {command}",
+                RedirectStandardOutput = false,
+                RedirectStandardError = false,
+                UseShellExecute = true,
+                CreateNoWindow = !visible
+            };
+
+            Process.Start(startInfo);
+            return Task.CompletedTask;
+        }
+
         public static void RunInPowerShell(string command, string arguments = "")
         {
             string shell = System.IO.File.Exists(@"C:\Program Files\PowerShell\7\pwsh.exe") ? "pwsh.exe" : "powershell.exe";

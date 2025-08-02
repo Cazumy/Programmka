@@ -2,7 +2,10 @@
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace Programmka.Services;
 
@@ -22,6 +25,24 @@ public static class AppUpdaterService
 
     public static async Task ApplyUpdateAsync(UpdateInfo info)
     {
+        var mainWindow = Application.Current.MainWindow;
+        if (mainWindow.Content is Panel panel)
+        {
+            foreach (UIElement child in panel.Children)
+            {
+                if (child is Border border && border.Name == "CloseButton")
+                {
+                    border.IsEnabled = true;
+                    border.Opacity = 1.0;
+                }
+                else
+                {
+                    child.IsEnabled = false;
+                    child.Opacity = 0.5;
+                }
+            }
+        }
+
         string tempNewExe = Path.Combine(Path.GetTempPath(), "app_new.exe");
         string? currentExe = Environment.ProcessPath;
         string batchFile = Path.Combine(Path.GetTempPath(), "update.bat");
@@ -45,13 +66,18 @@ del "%~f0"
 """;
 
         await File.WriteAllTextAsync(batchFile, batContent);
-        await WinCmdService.RunInCMD(batchFile);
-        Environment.Exit(0);
+
+        await WinCmdService.RunInCMDNoWait(batchFile);
+
+        Application.Current.Dispatcher.Invoke(() => Application.Current.Shutdown());
     }
 
     public class UpdateInfo
     {
-        public required string Version { get; set; }
-        public required string DownloadUrl { get; set; }
+        [JsonPropertyName("version")]
+        public string Version { get; set; }
+
+        [JsonPropertyName("downloadUrl")]
+        public string DownloadUrl { get; set; }
     }
 }
