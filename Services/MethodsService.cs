@@ -290,6 +290,7 @@ namespace Programmka.Services
         {
             const string subkey = @"Control Panel\Colors";
             RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, "Hilight", "", rgbValue);
+            RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, "HotTrackingColor", "", rgbValue);
         }
         public static string GetHighlightColor()
         {

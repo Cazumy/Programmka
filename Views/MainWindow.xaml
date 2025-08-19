@@ -5,7 +5,7 @@
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-    xmlns:styles="clr-namespace:Programmka.Styles"
+    xmlns:styles="clr-namespace:Programmka.Resources.Styles"
     Title="Programmka"
     Width="1100"
     Height="680"
@@ -17,6 +17,12 @@
     SnapsToDevicePixels="True"
     WindowStartupLocation="CenterScreen"
     WindowStyle="None">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding MainWindowClosingCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
     <Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
             <BeginStoryboard>
@@ -42,10 +48,10 @@
             x:Name="CloseButton"
             Width="44"
             Height="38"
-            Margin="1"
+            Margin="2"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
-            Panel.ZIndex="1"
+            Panel.ZIndex="2"
             shell:WindowChrome.IsHitTestVisibleInChrome="True"
             Cursor="Hand"
             PreviewMouseLeftButtonDown="CloseWindow">
@@ -75,16 +81,18 @@
             </Border.Triggers>
             <TextBlock
                 x:Name="CloseText"
+                Width="35"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                FontSize="20"
+                FontSize="25"
                 Foreground="#C6C6BD"
-                Text="X" />
+                Text="X"
+                TextAlignment="Center" />
         </Border>
         <Border
             BorderBrush="#10100E"
             BorderThickness="4"
-            CornerRadius="15">
+            CornerRadius="10">
             <Border.Background>
                 <RadialGradientBrush>
                     <GradientStop Offset="1" Color="#2B2B26" />
@@ -105,11 +113,11 @@
                             VerticalAlignment="Center"
                             FontSize="18"
                             Foreground="White"
-                            Text="Programmka 1.0.1" />
+                            Text="Programmka 1.0.2" />
                         <Button
-                            Width="200"
+                            Width="260"
                             Command="{Binding UpdateAppCommand}"
-                            Content="Update available"
+                            Content="Доступно обновление. Установить"
                             Cursor="Hand"
                             Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     </Grid>
@@ -160,7 +168,7 @@
                             Margin="0,0,40,0"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center">
-                            <Grid>
+                            <Grid Margin="0,0,0,8">
                                 <ContentControl
                                     styles:TextProperties.StatusText="{Binding ExeNotifications.StatusText}"
                                     Content="UAC уведомления"
@@ -168,7 +176,7 @@
                                     Tag="pack://application:,,,/Programmka;component/Resources/Images/exeNotifications.png" />
                                 <ToggleButton IsChecked="{Binding ExeNotifications.IsChecked}" />
                             </Grid>
-                            <Grid>
+                            <Grid Margin="0,0,0,8">
                                 <ContentControl
                                     styles:TextProperties.StatusText="{Binding Hibernation.StatusText}"
                                     Content="Гибернация"
@@ -176,7 +184,7 @@
                                     Tag="pack://application:,,,/Programmka;component/Resources/Images/hibernation.png" />
                                 <ToggleButton IsChecked="{Binding Hibernation.IsChecked}" />
                             </Grid>
-                            <Grid>
+                            <Grid Margin="0,0,0,8">
                                 <ContentControl
                                     styles:TextProperties.StatusText="{Binding MouseAcceleration.StatusText}"
                                     Content="Акселерация мыши"
@@ -240,8 +248,6 @@
                                         Stretch="Uniform"
                                         Visibility="{Binding DiskDuplicate.IsChecked, Converter={StaticResource BoolToVisInverse}}" />
                                     <Image
-                                        Grid.Row="6"
-                                        Grid.Column="0"
                                         Source="pack://application:,,,/Programmka;component/Resources/Images/Showcase/ni.png"
                                         Stretch="Uniform"
                                         Visibility="{Binding NetworkIcon.IsChecked, Converter={StaticResource BoolToVisInverse}}" />
@@ -252,7 +258,7 @@
                                 Grid.Column="1"
                                 Margin="20,0,20,0"
                                 VerticalAlignment="Center">
-                                <Grid>
+                                <Grid Margin="0,0,0,8">
                                     <ContentControl
                                         styles:TextProperties.StatusText="{Binding DiskDuplicate.StatusText}"
                                         Content="Дубликаты дисков"
@@ -260,7 +266,7 @@
                                         Tag="pack://application:,,,/Programmka;component/Resources/Images/disk.png" />
                                     <ToggleButton IsChecked="{Binding DiskDuplicate.IsChecked}" />
                                 </Grid>
-                                <Grid>
+                                <Grid Margin="0,0,0,8">
                                     <ContentControl
                                         styles:TextProperties.StatusText="{Binding QuickAccess.StatusText}"
                                         Content="Пункт &quot;Быстрый доступ&quot;"
@@ -268,7 +274,7 @@
                                         Tag="pack://application:,,,/Programmka;component/Resources/Images/quick_access.png" />
                                     <ToggleButton IsChecked="{Binding QuickAccess.IsChecked}" />
                                 </Grid>
-                                <Grid>
+                                <Grid Margin="0,0,0,8">
                                     <ContentControl
                                         styles:TextProperties.StatusText="{Binding Objects3D.StatusText}"
                                         Content="Папка &quot;Объёмные объекты&quot;"
@@ -276,7 +282,7 @@
                                         Tag="pack://application:,,,/Programmka;component/Resources/Images/3d_objects.png" />
                                     <ToggleButton IsChecked="{Binding Objects3D.IsChecked}" />
                                 </Grid>
-                                <Grid>
+                                <Grid Margin="0,0,0,8">
                                     <ContentControl
                                         styles:TextProperties.StatusText="{Binding NetworkIcon.StatusText}"
                                         Content="Значок &quot;Сеть&quot;"
@@ -284,7 +290,7 @@
                                         Tag="pack://application:,,,/Programmka;component/Resources/Images/network.png" />
                                     <ToggleButton IsChecked="{Binding NetworkIcon.IsChecked}" />
                                 </Grid>
-                                <Grid>
+                                <Grid Margin="0,0,0,8">
                                     <ContentControl
                                         styles:TextProperties.StatusText="{Binding FileExtensions.StatusText}"
                                         Content="Расширения файлов"
@@ -305,17 +311,10 @@
                                 VerticalAlignment="Center"
                                 BorderBrush="#14110c"
                                 BorderThickness="2">
-                                <Grid>
-                                    <Image
-                                        RenderOptions.BitmapScalingMode="HighQuality"
-                                        Source="{Binding WallpaperImageSource}"
-                                        Stretch="Uniform"
-                                        Visibility="{Binding WallpaperCompression.IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                    <Image
-                                        RenderOptions.BitmapScalingMode="HighQuality"
-                                        Source="{Binding CompressedWallpaperImageSource}"
-                                        Stretch="Uniform"
-                                        Visibility="{Binding WallpaperCompression.IsChecked, Converter={StaticResource BoolToVisInverse}}" />
+                                <Grid Height="332">
+                                    <Grid.Background>
+                                        <ImageBrush ImageSource="{Binding WallpaperImageSource}" Stretch="UniformToFill" />
+                                    </Grid.Background>
                                     <Border
                                         x:Name="HighlightColorImage"
                                         Width="200"
@@ -342,7 +341,7 @@
                                 </Grid>
                             </Border>
                             <StackPanel VerticalAlignment="Center">
-                                <Grid>
+                                <Grid Margin="0,0,0,8">
                                     <ContentControl
                                         styles:TextProperties.StatusText="{Binding LabelArrows.StatusText}"
                                         Content="Стрелки на ярлыках"
@@ -350,7 +349,7 @@
                                         Tag="pack://application:,,,/Programmka;component/Resources/Images/label.png" />
                                     <ToggleButton IsChecked="{Binding LabelArrows.IsChecked}" />
                                 </Grid>
-                                <Grid>
+                                <Grid Margin="0,0,0,8">
                                     <ContentControl
                                         styles:TextProperties.StatusText="{Binding WallpaperCompression.StatusText}"
                                         Content="Сжатие обоев рабочего стола"
@@ -362,8 +361,8 @@
                                     <hc:ColorPicker x:Name="ColorPicker" SelectedBrush="{Binding SelectedBrush, Mode=TwoWay}" />
                                     <Border
                                         Width="148"
-                                        Height="21"
-                                        Margin="0,0,81,58"
+                                        Height="20"
+                                        Margin="0,0,80,58"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Bottom"
                                         Background="White" />
@@ -392,39 +391,121 @@
                         </StackPanel>
                     </TabItem>
                     <TabItem x:Name="FixesItem" Tag="pack://application:,,,/Programmka;component/Resources/Images/fix.png">
-                        <StackPanel
-                            Width="700"
-                            Margin="0,30,30,0"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Top">
-                            <ContentControl
-                                Width="Auto"
-                                Content="Внутренние диски SATA отображаются как съемные носители"
-                                Style="{StaticResource ToggleButtonBackgroundStyle}" />
-                            <Button
-                                Width="100"
-                                Margin="0,-56,10,0"
+                        <Grid>
+                            <StackPanel
+                                MinWidth="440"
+                                MaxWidth="440"
+                                Margin="20,20,0,20"
+                                HorizontalAlignment="Left">
+                                <Border
+                                    Background="#fff7e6"
+                                    BorderBrush="Black"
+                                    BorderThickness="2.5"
+                                    CornerRadius="10">
+                                    <StackPanel>
+                                        <Border
+                                            Width="Auto"
+                                            Height="300px"
+                                            Margin="5,10,5,10"
+                                            Background="#FFECDCBA"
+                                            BorderBrush="Black"
+                                            BorderThickness="1.5">
+                                            <Grid>
+                                                <Image Source="{Binding CurrentInfoImage}" Stretch="Uniform" />
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock
+                                            Height="Auto"
+                                            Margin="10,0,10,14"
+                                            VerticalAlignment="Bottom"
+                                            FontSize="16"
+                                            Foreground="#00311f"
+                                            Text="{Binding TextInfoFix}"
+                                            TextAlignment="Justify"
+                                            TextWrapping="WrapWithOverflow" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                            <StackPanel
+                                Width="500"
+                                Margin="0,60,20,0"
                                 HorizontalAlignment="Right"
-                                Command="{Binding FixHardDisksCommand}"
-                                Content="Исправить" />
-
-                            <ContentControl
-                                Width="Auto"
-                                Content="Пропали иконки, остались только имена ярлыков и папок"
-                                Style="{StaticResource ToggleButtonBackgroundStyle}" />
-                            <Button
-                                Width="100"
-                                Margin="0,-56,10,0"
-                                HorizontalAlignment="Right"
-                                Command="{Binding ReturnLabelArrowsCommand}"
-                                Content="Исправить" />
-
-                            <Button
-                                Width="260"
-                                Margin="0,20,0,0"
-                                Command="{Binding RepairSystemCommand}"
-                                Content="Восстановить системные файлы" />
-                        </StackPanel>
+                                VerticalAlignment="Top">
+                                <Grid Margin="0,0,50,8">
+                                    <ContentControl
+                                        Width="Auto"
+                                        Height="50px"
+                                        Content="Внутренние диски SATA отображаются как съемные носители"
+                                        Style="{StaticResource ToggleButtonBackgroundStyle}" />
+                                    <Button
+                                        Width="90"
+                                        Margin="0,0,10,0"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        Command="{Binding FixHardDisksCommand}"
+                                        Content="Исправить" />
+                                    <Grid
+                                        Margin="0,0,-50,0"
+                                        styles:MouseEnterCommandBehavior.EnterCommand="{Binding FixHardDisksInfoCommand}"
+                                        styles:MouseEnterCommandBehavior.LeaveCommand="{Binding DeleteTextInfoFixCommand}"
+                                        Style="{StaticResource HelpMark}" />
+                                </Grid>
+                                <Grid Margin="0,0,50,8">
+                                    <ContentControl
+                                        Width="Auto"
+                                        Height="50px"
+                                        Content="Пропали иконки, остались только имена ярлыков и папок"
+                                        Style="{StaticResource ToggleButtonBackgroundStyle}" />
+                                    <Button
+                                        Width="90"
+                                        Margin="0,0,10,0"
+                                        HorizontalAlignment="Right"
+                                        Command="{Binding ReturnLabelArrowsCommand}"
+                                        Content="Исправить" />
+                                    <Grid
+                                        Margin="0,0,-50,0"
+                                        styles:MouseEnterCommandBehavior.EnterCommand="{Binding ArrowLabelsInfoCommand}"
+                                        styles:MouseEnterCommandBehavior.LeaveCommand="{Binding DeleteTextInfoFixCommand}"
+                                        Style="{StaticResource HelpMark}" />
+                                </Grid>
+                                <Grid Margin="0,0,50,8">
+                                    <ContentControl
+                                        Width="Auto"
+                                        Height="50px"
+                                        Content="Восстановить системные файлы"
+                                        Style="{StaticResource ToggleButtonBackgroundStyle}" />
+                                    <Button
+                                        Width="90"
+                                        Margin="0,0,10,0"
+                                        HorizontalAlignment="Right"
+                                        Command="{Binding RestoreSysFilesCommand}"
+                                        Content="Восстановить" />
+                                    <Grid
+                                        Margin="0,0,-50,0"
+                                        styles:MouseEnterCommandBehavior.EnterCommand="{Binding RestoreSysFilesInfoCommand}"
+                                        styles:MouseEnterCommandBehavior.LeaveCommand="{Binding DeleteTextInfoFixCommand}"
+                                        Style="{StaticResource HelpMark}" />
+                                </Grid>
+                                <Grid Margin="0,0,50,8">
+                                    <ContentControl
+                                        Width="Auto"
+                                        Height="50px"
+                                        Content="Переместить appVerif DLL"
+                                        Style="{StaticResource ToggleButtonBackgroundStyle}" />
+                                    <Button
+                                        Width="90"
+                                        Margin="0,0,10,0"
+                                        HorizontalAlignment="Right"
+                                        Command="{Binding ReplaceAppVerifierDllCommand}"
+                                        Content="Переместить" />
+                                    <Grid
+                                        Margin="0,0,-50,0"
+                                        styles:MouseEnterCommandBehavior.EnterCommand="{Binding AppVerifierInfoCommand}"
+                                        styles:MouseEnterCommandBehavior.LeaveCommand="{Binding DeleteTextInfoFixCommand}"
+                                        Style="{StaticResource HelpMark}" />
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
                     </TabItem>
                     <TabItem x:Name="Downloads" Tag="pack://application:,,,/Programmka;component/Resources/Images/download.png">
                         <StackPanel

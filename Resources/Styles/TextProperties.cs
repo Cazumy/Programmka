@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace Programmka.Styles
+namespace Programmka.Resources.Styles
 {
     public class TextProperties : DependencyObject
     {

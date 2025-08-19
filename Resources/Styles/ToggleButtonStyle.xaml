@@ -2,7 +2,8 @@
     <Style BasedOn="{StaticResource ToggleButtonSwitchBaseStyle}" TargetType="ToggleButton">
         <Setter Property="Height" Value="24" />
         <Setter Property="HorizontalAlignment" Value="Right" />
-        <Setter Property="Margin" Value="0,0,62,8" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,61,0" />
         <Setter Property="Background" Value="DarkRed" />
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">

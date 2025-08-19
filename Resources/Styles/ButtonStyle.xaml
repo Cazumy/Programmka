@@ -4,14 +4,14 @@
     xmlns:hc="https://handyorg.github.io/handycontrol">
     <Style BasedOn="{StaticResource ButtonCustom}" TargetType="Button">
         <Setter Property="Cursor" Value="Hand" />
-        <Setter Property="Background" Value="Gray" />
+        <Setter Property="Background" Value="#302f2c" />
         <Setter Property="hc:BackgroundSwitchElement.MouseHoverBackground" Value="LightGray" />
         <Setter Property="hc:BackgroundSwitchElement.MouseDownBackground" Value="DarkGray" />
         <Setter Property="Height" Value="30" />
-        <Setter Property="FontSize" Value="15" />
-        <Setter Property="Foreground" Value="Black" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="#efede3" />
         <Setter Property="BorderBrush" Value="Black" />
         <Setter Property="BorderThickness" Value="2" />
-        <Setter Property="hc:BorderElement.CornerRadius" Value="6" />
+        <Setter Property="hc:BorderElement.CornerRadius" Value="5" />
     </Style>
 </ResourceDictionary>

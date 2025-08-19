@@ -1,43 +1,46 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:text="clr-namespace:Programmka.Styles">
+    xmlns:text="clr-namespace:Programmka.Resources.Styles">
     <Style x:Key="ToggleButtonBackgroundStyle" TargetType="{x:Type ContentControl}">
         <Setter Property="Height" Value="40" />
         <Setter Property="Width" Value="376" />
-        <Setter Property="Margin" Value="0,0,0,8" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ContentControl">
                     <Border
-                        Background="#bdb2a8"
-                        BorderBrush="#2d2a26"
+                        Background="#fafafa"
+                        BorderBrush="#312f2c"
                         BorderThickness="2"
-                        CornerRadius="15">
+                        CornerRadius="14">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="56px" />
-                                <ColumnDefinition Width="4*" />
-                                <ColumnDefinition Width="60px" />
-                                <ColumnDefinition Width="60px" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="50px" />
+                                <ColumnDefinition Width="52px" />
                             </Grid.ColumnDefinitions>
                             <Image
                                 Grid.Column="0"
                                 Width="34"
                                 Height="34"
                                 HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
                                 Source="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" />
                             <TextBlock
                                 Grid.Column="1"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
-                                FontSize="14"
-                                Foreground="Black"
-                                Text="{TemplateBinding Content}" />
+                                FontFamily="Roboto"
+                                FontSize="15"
+                                Foreground="#302f2c"
+                                Text="{TemplateBinding Content}"
+                                TextWrapping="WrapWithOverflow" />
                             <TextBlock
                                 Grid.Column="3"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
+                                FontFamily="Roboto"
                                 FontSize="15"
                                 Text="{Binding Path=(text:TextProperties.StatusText), RelativeSource={RelativeSource TemplatedParent}}" />
                         </Grid>

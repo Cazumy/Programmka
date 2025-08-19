@@ -16,11 +16,12 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
 
-                <ResourceDictionary Source="/Styles/TabContentBorderStyle.xaml" />
-                <ResourceDictionary Source="/Styles/TabItemStyle.xaml" />
-                <ResourceDictionary Source="/Styles/ContentControlForToggleButtonStyle.xaml" />
-                <ResourceDictionary Source="/Styles/ToggleButtonStyle.xaml" />
-                <ResourceDictionary Source="/Styles/ButtonStyle.xaml" />
+                <ResourceDictionary Source="/Resources/Styles/HelpMarkStyle.xaml" />
+                <ResourceDictionary Source="/Resources/Styles/TabContentBorderStyle.xaml" />
+                <ResourceDictionary Source="/Resources/Styles/TabItemStyle.xaml" />
+                <ResourceDictionary Source="/Resources/Styles/ContentControlForToggleButtonStyle.xaml" />
+                <ResourceDictionary Source="/Resources/Styles/ToggleButtonStyle.xaml" />
+                <ResourceDictionary Source="/Resources/Styles/ButtonStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

@@ -7,7 +7,7 @@
         <Setter Property="BorderBrush" Value="#10100E" />
         <Setter Property="Background">
             <Setter.Value>
-                <ImageBrush ImageSource="/Programmka;component/Resources/Images/background.jpg" RenderOptions.BitmapScalingMode="HighQuality" />
+                <ImageBrush ImageSource="/Programmka;component/Resources/Images/background.png" RenderOptions.BitmapScalingMode="HighQuality" />
             </Setter.Value>
         </Setter>
     </Style>

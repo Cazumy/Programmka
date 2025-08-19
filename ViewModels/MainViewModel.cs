@@ -5,12 +5,15 @@ using CommunityToolkit.Mvvm.Input;
 using Programmka.Middleware;
 using Programmka.Models;
 using Programmka.Services;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using static Programmka.Services.MethodsService;
 
 namespace Programmka.ViewModels
@@ -18,22 +21,58 @@ namespace Programmka.ViewModels
     public partial class MainViewModel : ObservableObject
     {
         [ObservableProperty]
-        private bool loadingStatus;
+        private bool loadingStatus; // decor for lasting operations
         [ObservableProperty]
         private bool updateAvailable;
         public MainViewModel()
         {
             CommandMiddleware.SetStatus = status => TabItemDescription = status;
             SetWallpaperImage();
-            SetBrush();
+            SetHighlightBrush();
             UpdateTempSizeText();
             CheckUpdateAsync();
+            DeleteTextInfoFix();
+
+            WallpaperCompression = new( // init here cause of conflict beetween static and this
+                onStatus: "Выкл.",
+                offStatus: "Вкл.",
+                initial: CheckWallpaperCompression(),
+                callback: value =>
+                {
+                    SetWallpaperCompression(value);
+                    this.UpdateWallpaperImage();
+                });
+            UpdateWallpaperImage();
         }
+
+        [RelayCommand]
+        private static void MainWindowClosing() => DeleteWallpaperTemp(); // deleting all temp files on exit
+
         [RelayCommand]
         private async Task UpdateApp()
         {
             if (UpdateAvailable)
             {
+                LoadingStatus = true;
+
+                var mainWindow = Application.Current.MainWindow;
+                if (mainWindow.Content is Panel panel)
+                {
+                    foreach (UIElement child in panel.Children)
+                    {
+                        if (child is Border border && border.Name == "CloseButton")
+                        {
+                            border.IsEnabled = true;
+                            border.Opacity = 1.0;
+                        }
+                        else
+                        {
+                            child.IsEnabled = false;
+                            child.Opacity = 0.5;
+                        }
+                    }
+                }
+
                 await AppUpdaterService.ApplyUpdateAsync(await AppUpdaterService.CheckForUpdateAsync());
             }
         }
@@ -109,22 +148,25 @@ namespace Programmka.ViewModels
             offStatus: "Вкл.",
             initial: CheckLabels(),
             callback: SetLabelArrows);
-        public ToggleAction WallpaperCompression { get; } = new(
-            onStatus: "Выкл.",
-            offStatus: "Вкл.",
-            initial: CheckWallpaperCompression(),
-            callback: SetWallpaperCompression);
 
         [ObservableProperty]
-        private string wallpaperImageSource;
-        [ObservableProperty]
-        private string compressedWallpaperImageSource;
+        private ImageSource wallpaperImageSource;
+        private ImageSource normalImageSource;
+        private ImageSource compressedImageSource;
+        public ToggleAction WallpaperCompression { get; }
         private void SetWallpaperImage()
         {
-            var paths = LoadWallpaperImage();
-            WallpaperImageSource = paths.Item1;
-            CompressedWallpaperImageSource = paths.Item2;
+            var path = LoadWallpaperImage();
+            normalImageSource = ImagesService.LoadImage(path.Item1); //pack
+            compressedImageSource = ImagesService.LoadImage(path.Item2); //file
+            UpdateWallpaperImage();
         }
+        private void UpdateWallpaperImage()
+        {
+            if (WallpaperCompression == null) { return; }
+            WallpaperImageSource = WallpaperCompression.IsChecked ? normalImageSource : compressedImageSource;
+        }
+
         [ObservableProperty]
         private SolidColorBrush selectedBrush;
 
@@ -138,7 +180,7 @@ namespace Programmka.ViewModels
 
         public Brush? BackgroundBrush => SelectedBrush is SolidColorBrush solid
                 ? new SolidColorBrush(Color.FromArgb(0x30, solid.Color.R, solid.Color.G, solid.Color.B)) : Brushes.Transparent;
-        private void SetBrush()
+        private void SetHighlightBrush()
         {
             var colorString = GetHighlightColor().Split(' ');
             if (colorString.Length != 3 ||
@@ -152,11 +194,13 @@ namespace Programmka.ViewModels
         [RelayCommand]
         private static void ChangeHighlightColor(SolidColorBrush brush) => CommandMiddleware.Run(() =>
         {
-            if (brush == null) return;
+            if (brush == null) { Debug.WriteLine("smh went wrong"); return; }
             var color = brush.Color;
+            Debug.WriteLine("smh went good");
             var rgbValue = $"{color.R} {color.G} {color.B}";
             SetHighlightColor(rgbValue);
-        });
+            Debug.WriteLine("smh went good");
+        }).Execute(null);
         #endregion
         #region activations
         [RelayCommand]
@@ -212,23 +256,132 @@ eccb9c18530ee0d147058f8b282a9ccfc31322fafcbb4251940582";
         }
         #endregion
         #region fixes
-        public static ICommand FixHardDisksCommand => CommandMiddleware.Run(async () =>
+        [ObservableProperty]
+        private string textInfoFix;
+
+        [ObservableProperty]
+        private BitmapImage currentInfoImage;
+
+        [RelayCommand]
+        public void DeleteTextInfoFix()
+        {
+            TextInfoFix = "Описание проблемы.";
+            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/infoImageExample.png");
+        }
+        ////
+        [RelayCommand]
+        public void FixHardDisksInfo()
+        {
+            TextInfoFix = "Внутренние диски SATA (жесткие диски и твердотельные накопители) могут отображаться в панели задач как съемные носители.\n" +
+                "Перед фиксом прежде всего проверьте наличие доступных обновлений BIOS от производителя компьютера и установите их, если есть.\n" +
+                "При этом фиксе все диски, подключенные через SATA порт будут отображаться как внутренние диски.";
+            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/diskDuplicationPreview.png");
+        }
+        [RelayCommand]
+        public static void FixHardDisks() => CommandMiddleware.Run(async () =>
         {
             const string command = "reg add \"HKLM\\SYSTEM\\CurrentControlSet\\Services\\storahci\\Parameters\\Device\" /f /v TreatAsInternalPort /t REG_MULTI_SZ /d \"0\\0 1\\0 2\\0 3\\0 4\\0 5\\0 6\\0 7\\0 8\\0 9\\0 10\\0 11\\0 12\\0 13\\0 14\\0 15\\0 16";
             await WinCmdService.RunInCMD(command);
-        });
-        public static ICommand ReturnLabelArrowsCommand => CommandMiddleware.Run(() =>
+        }).Execute(null);
+        ////
+        [RelayCommand]
+        private void ArrowLabelsInfo()
+        {
+            TextInfoFix = "Наиболее вероятная причина - это твик с отключением стрелок на ярлыках, фикс возвращает иконки папок и ярлыков, но также возвращает и стрелки.\n" +
+                "Если фикс не помог, то пройдитесь по базе: перезагрузка ПК, проверка системных файлов и т.д.";
+            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/ArrowLabelsTweakBug.png");
+        }
+        [RelayCommand]
+        public static void ReturnLabelArrows() => CommandMiddleware.Run(() =>
         {
             const string subKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\"; const string dir = "Shell Icons";
             RegeditService.DeleteRegDir(subKey, dir);
-        });
+        }).Execute(null);
+        ////
         [RelayCommand]
-        private static async Task RepairSystem()
+        private void RestoreSysFilesInfo()
+        {
+            TextInfoFix = "Произойдёт проверка и автоматическое восстановление повреждённых системных файлов Windows, используя их кэшированные копии и файлы из Центра обновления.";
+            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/restoreSysFilesImage.png");
+        }
+        [RelayCommand]
+        private static async Task RestoreSysFiles()
         {
             const string commandCmd = "sfc /scannow";
             const string commandPowerShell = "dism /Online /Cleanup-Image /RestoreHealth";
-            await WinCmdService.RunInCMD(commandCmd, true);
+            await WinCmdService.RunInCMDNoWait(commandCmd, true);
             WinCmdService.RunInPowerShell(commandPowerShell);
+        }
+        ////
+        [RelayCommand]
+        private void AppVerifierInfo()
+        {
+            TextInfoFix = "Устранение проблем с компонентами Windows, вызванных неправильными путями к .dll-файлам, которые загромождают диск C:\\. Исправление автоматически обновит соответствующие записи реестра, чтобы они указывали на правильные расположения файлов, и перемещает файлы в соответствующий каталог C:\\Windows\\SysWOW64.";
+            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/appVerifierImage.png");
+        }
+
+        [RelayCommand]
+        private static async Task ReplaceAppVerifierDll()
+        {
+            const string bat = """
+@echo off
+setlocal
+
+REM Define constants
+set "COMP=HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Components"
+set "OUT_DIR=C:\Windows\SysWOW64"
+
+REM Start processing
+goto :Process
+
+:Fix
+REM Arguments: %1 - Registry key suffix, %2 - Old file path, %3 - New file path
+set "KEY=%COMP%\%~1"
+set "OLD_FILE=%~2"
+set "NEW_FILE=%~3"
+
+REM Search for the registry value matching the old file path
+for /f "tokens=1,2,*" %%A in ('reg query "%KEY%" 2^>nul') do (
+    if "%%B"=="REG_SZ" if /i "%%C"=="%OLD_FILE%" (
+        set "VAL=%%A"
+        goto :Found
+    )
+)
+
+REM If not found, log and check the file existence
+echo Value %OLD_FILE% not found in %KEY%
+goto :CheckFile
+
+:Found
+REM Update the registry value to the new file path
+reg add "%KEY%" /v "%VAL%" /t REG_SZ /d "%NEW_FILE%" /f >nul && (
+    echo Registry component %KEY%\%VAL% fixed
+) || (
+    echo Failed to update registry for %KEY%\%VAL%
+)
+
+:CheckFile
+REM Check if the old file exists and move it to the new location
+if exist "%OLD_FILE%" (
+    move /Y "%OLD_FILE%" "%NEW_FILE%" >nul && (
+        echo %OLD_FILE% successfully moved to %NEW_FILE%
+    ) || (
+        echo Failed to move %OLD_FILE%
+    )
+) else (
+    echo %OLD_FILE% does not exist, nothing to move
+)
+goto :EOF
+
+:Process
+REM Fix registry and move files
+call :Fix "0AF818DE4685190F5347FAF54BD80C82" "C:\appverifUI.dll" "%OUT_DIR%\appverifUI.dll"
+call :Fix "E0C37F311948CF28AE087B694A681271" "C:\vfcompat.dll" "%OUT_DIR%\vfcompat.dll"
+
+REM End script
+endlocal
+""";
+            await WinCmdService.RunBat(bat, false);
         }
         #endregion
         #region downloading
@@ -324,7 +477,7 @@ eccb9c18530ee0d147058f8b282a9ccfc31322fafcbb4251940582";
         [RelayCommand]
         private void TabMouseEnter(object sender)
         {
-            if (sender is System.Windows.Controls.TabItem tabItem)
+            if (sender is TabItem tabItem)
             {
                 TabItemDescription = tabItem.Name switch
                 {
