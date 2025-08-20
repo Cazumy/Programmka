@@ -67,7 +67,7 @@ namespace Programmka.Services
                     return (T)Convert.ChangeType(value, typeof(T));
                 }
             }
-            catch{}
+            catch (Exception e) { MessageBox.Show(e.Message); }
 
             return fallback;
         }

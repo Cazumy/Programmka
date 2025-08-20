@@ -21,6 +21,9 @@
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction Command="{Binding MainWindowClosingCommand}" />
         </i:EventTrigger>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding MainWindowLoadedCommand}" />
+        </i:EventTrigger>
     </i:Interaction.Triggers>
 
     <Window.Triggers>
@@ -113,7 +116,7 @@
                             VerticalAlignment="Center"
                             FontSize="18"
                             Foreground="White"
-                            Text="Programmka 1.0.2" />
+                            Text="Programmka 1.0.3" />
                         <Button
                             Width="260"
                             Command="{Binding UpdateAppCommand}"

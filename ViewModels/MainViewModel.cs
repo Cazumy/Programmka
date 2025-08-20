@@ -1,4 +1,5 @@
 ﻿#pragma warning disable CS8618
+#pragma warning disable CA1416 // Проверка совместимости платформы
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -11,7 +12,6 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static Programmka.Services.MethodsService;
@@ -20,17 +20,13 @@ namespace Programmka.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        [ObservableProperty]
-        private bool loadingStatus; // decor for lasting operations
-        [ObservableProperty]
-        private bool updateAvailable;
+        public static MainViewModel Instance { get; private set; }
         public MainViewModel()
         {
+            Instance = this;
             CommandMiddleware.SetStatus = status => TabItemDescription = status;
             SetWallpaperImage();
             SetHighlightBrush();
-            UpdateTempSizeText();
-            CheckUpdateAsync();
             DeleteTextInfoFix();
 
             WallpaperCompression = new( // init here cause of conflict beetween static and this
@@ -39,21 +35,27 @@ namespace Programmka.ViewModels
                 initial: CheckWallpaperCompression(),
                 callback: value =>
                 {
-                    SetWallpaperCompression(value);
-                    this.UpdateWallpaperImage();
+                    SetWallpaperCompression(value); // static method
+                    this.UpdateWallpaperImage(); // instance method
                 });
             UpdateWallpaperImage();
+
+            TabItemDescription = String.Empty;
         }
-
-        [RelayCommand]
-        private static void MainWindowClosing() => DeleteWallpaperTemp(); // deleting all temp files on exit
-
-        [RelayCommand]
-        private async Task UpdateApp()
+        [RelayCommand] private async Task MainWindowLoaded()
         {
-            if (UpdateAvailable)
+            UpdateTempSizeText();
+
+            AppUpdaterService.UpdateInfo? update = await AppUpdaterService.CheckForUpdateAsync(); // update check
+            UpdateAvailable = update != null;
+        }
+        [RelayCommand] private static void MainWindowClosing() => DeleteWallpaperTemp(); // deleting all temp files on exit
+        [ObservableProperty] private bool updateAvailable;
+        [RelayCommand] private static async Task UpdateApp()
+        {
+            if (Instance.UpdateAvailable)
             {
-                LoadingStatus = true;
+                Instance.LoadingStatus = true;
 
                 var mainWindow = Application.Current.MainWindow;
                 if (mainWindow.Content is Panel panel)
@@ -73,13 +75,8 @@ namespace Programmka.ViewModels
                     }
                 }
 
-                await AppUpdaterService.ApplyUpdateAsync(await AppUpdaterService.CheckForUpdateAsync());
+                await AppUpdaterService.ApplyUpdateAsync(await AppUpdaterService.CheckForUpdateAsync()); // 100% not null here
             }
-        }
-        private async void CheckUpdateAsync()
-        {
-            var update = await AppUpdaterService.CheckForUpdateAsync();
-            UpdateAvailable = update != null;
         }
         #region tweaks
         #region base
@@ -105,10 +102,7 @@ namespace Programmka.ViewModels
             callback: SetKeySticking);
         #endregion
         #region explorer
-        [ObservableProperty]
-        private bool explorerExtensionsEnabled;
-        [RelayCommand]
-        private static void ReloadExplorer()
+        [RelayCommand] private static void ReloadExplorer()
         {
             foreach (var process in Process.GetProcessesByName("explorer"))
             {
@@ -149,8 +143,7 @@ namespace Programmka.ViewModels
             initial: CheckLabels(),
             callback: SetLabelArrows);
 
-        [ObservableProperty]
-        private ImageSource wallpaperImageSource;
+        [ObservableProperty] private ImageSource wallpaperImageSource;
         private ImageSource normalImageSource;
         private ImageSource compressedImageSource;
         public ToggleAction WallpaperCompression { get; }
@@ -167,9 +160,7 @@ namespace Programmka.ViewModels
             WallpaperImageSource = WallpaperCompression.IsChecked ? normalImageSource : compressedImageSource;
         }
 
-        [ObservableProperty]
-        private SolidColorBrush selectedBrush;
-
+        [ObservableProperty] private SolidColorBrush selectedBrush;
         partial void OnSelectedBrushChanged(SolidColorBrush value)
         {
             OnPropertyChanged(nameof(BorderBrush));
@@ -177,52 +168,36 @@ namespace Programmka.ViewModels
         }
         public Brush? BorderBrush => SelectedBrush is SolidColorBrush solid
             ? new SolidColorBrush(solid.Color) : Brushes.Transparent;
-
         public Brush? BackgroundBrush => SelectedBrush is SolidColorBrush solid
                 ? new SolidColorBrush(Color.FromArgb(0x30, solid.Color.R, solid.Color.G, solid.Color.B)) : Brushes.Transparent;
         private void SetHighlightBrush()
         {
             var colorString = GetHighlightColor().Split(' ');
-            if (colorString.Length != 3 ||
-                !byte.TryParse(colorString[0], out byte r) || !byte.TryParse(colorString[1], out byte g) || !byte.TryParse(colorString[2], out byte b))
+            if (colorString.Length != 3 || !byte.TryParse(colorString[0], out byte r) || !byte.TryParse(colorString[1], out byte g) || !byte.TryParse(colorString[2], out byte b))
             {
                 SelectedBrush = Brushes.Transparent;
                 return;
             }
             SelectedBrush = new SolidColorBrush(Color.FromRgb(r, g, b));
         }
-        [RelayCommand]
-        private static void ChangeHighlightColor(SolidColorBrush brush) => CommandMiddleware.Run(() =>
+        [RelayCommand] private static void ChangeHighlightColor(SolidColorBrush brush) => CommandMiddleware.Run(() =>
         {
-            if (brush == null) { Debug.WriteLine("smh went wrong"); return; }
+            if (brush == null) return;
             var color = brush.Color;
-            Debug.WriteLine("smh went good");
             var rgbValue = $"{color.R} {color.G} {color.B}";
             SetHighlightColor(rgbValue);
-            Debug.WriteLine("smh went good");
         }).Execute(null);
         #endregion
         #region activations
-        [RelayCommand]
-        private static void ActivateWindows()
+        [RelayCommand] private static void ActivateWindows() =>
+            WinCmdService.RunInPowerShell("irm https://get.activated.win | iex", "-Command");
+
+        [RelayCommand] private static void ActivateWinRar()
         {
-            var cmdProcessInfo = new ProcessStartInfo
-            {
-                FileName = "cmd.exe",
-                Arguments = "/c powershell.exe -Command \"irm https://massgrave.dev/get | iex\"",
-                Verb = "runas",
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-            Process.Start(cmdProcessInfo);
-        }
-        [RelayCommand]
-        private void ActivateWinRar()
-        {
-            LoadingStatus = true;
+            Instance.LoadingStatus = true;
             var dialog = MessageBox.Show("Вы меняли директорию по умолчанию для установки WINRAR?", "Ответьте на вопрос", MessageBoxButton.YesNoCancel);
             string? selectedFolderPath;
-            if (dialog == MessageBoxResult.Cancel) { LoadingStatus = false; return; }
+            if (dialog == MessageBoxResult.Cancel) { Instance.LoadingStatus = false; Instance.TabItemDescription = "Процесс активации прерван"; return; }
             else if (dialog == MessageBoxResult.No)
             {
                 selectedFolderPath = @"C:\Program Files\WinRAR";
@@ -233,7 +208,7 @@ namespace Programmka.ViewModels
                 folderDialog.ShowDialog();
                 selectedFolderPath = folderDialog.FolderName;
             }
-            if (string.IsNullOrEmpty(selectedFolderPath)) { LoadingStatus = false; return; }
+            if (string.IsNullOrEmpty(selectedFolderPath)) { Instance.LoadingStatus = false; Instance.TabItemDescription = "Процесс активации прерван"; return; }
             const string key = @"RAR registration data
 PROMSTROI GROUP
 15 PC usage license
@@ -246,82 +221,71 @@ be9caf70ca9cee8199c54758f64acc9c27d3968d5e69ecb901b91d
 538d079f9f1fd1a81d656627d962bf547c38ebbda774df21605c33
 eccb9c18530ee0d147058f8b282a9ccfc31322fafcbb4251940582";
             File.WriteAllText(selectedFolderPath + @"\rarreg.key.txt", key);
-            LoadingStatus = false;
+            Instance.TabItemDescription = "WinRar успешно активан";
+            Instance.LoadingStatus = false;
         }
-        [RelayCommand]
-        private async Task BecameAdminWin10()
+        [RelayCommand] private async Task BecameAdminWin10()
         {
-            await WinCmdService.RunInCMD($"net user {System.Environment.UserName} /active:yes");
+            await WinCmdService.RunInCMD($"net user {Environment.UserName} /active:yes");
             TabItemDescription = "Пользователь стал администратором";
         }
         #endregion
         #region fixes
-        [ObservableProperty]
-        private string textInfoFix;
+        [ObservableProperty] private string textInfoFix;
 
-        [ObservableProperty]
-        private BitmapImage currentInfoImage;
+        [ObservableProperty] private BitmapImage currentInfoImage;
 
-        [RelayCommand]
-        public void DeleteTextInfoFix()
+        [RelayCommand] public void DeleteTextInfoFix()
         {
             TextInfoFix = "Описание проблемы.";
             CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/infoImageExample.png");
         }
         ////
-        [RelayCommand]
-        public void FixHardDisksInfo()
+        [RelayCommand] public void FixHardDisksInfo()
         {
             TextInfoFix = "Внутренние диски SATA (жесткие диски и твердотельные накопители) могут отображаться в панели задач как съемные носители.\n" +
                 "Перед фиксом прежде всего проверьте наличие доступных обновлений BIOS от производителя компьютера и установите их, если есть.\n" +
                 "При этом фиксе все диски, подключенные через SATA порт будут отображаться как внутренние диски.";
             CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/diskDuplicationPreview.png");
         }
-        [RelayCommand]
-        public static void FixHardDisks() => CommandMiddleware.Run(async () =>
+        [RelayCommand] public static void FixHardDisks() => CommandMiddleware.Run(async () =>
         {
             const string command = "reg add \"HKLM\\SYSTEM\\CurrentControlSet\\Services\\storahci\\Parameters\\Device\" /f /v TreatAsInternalPort /t REG_MULTI_SZ /d \"0\\0 1\\0 2\\0 3\\0 4\\0 5\\0 6\\0 7\\0 8\\0 9\\0 10\\0 11\\0 12\\0 13\\0 14\\0 15\\0 16";
             await WinCmdService.RunInCMD(command);
         }).Execute(null);
         ////
-        [RelayCommand]
-        private void ArrowLabelsInfo()
+        [RelayCommand] private void ArrowLabelsInfo()
         {
             TextInfoFix = "Наиболее вероятная причина - это твик с отключением стрелок на ярлыках, фикс возвращает иконки папок и ярлыков, но также возвращает и стрелки.\n" +
                 "Если фикс не помог, то пройдитесь по базе: перезагрузка ПК, проверка системных файлов и т.д.";
             CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/ArrowLabelsTweakBug.png");
         }
-        [RelayCommand]
-        public static void ReturnLabelArrows() => CommandMiddleware.Run(() =>
+        [RelayCommand] public static void ReturnLabelArrows() => CommandMiddleware.Run(() =>
         {
             const string subKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\"; const string dir = "Shell Icons";
             RegeditService.DeleteRegDir(subKey, dir);
         }).Execute(null);
         ////
-        [RelayCommand]
-        private void RestoreSysFilesInfo()
+        [RelayCommand] private void RestoreSysFilesInfo()
         {
             TextInfoFix = "Произойдёт проверка и автоматическое восстановление повреждённых системных файлов Windows, используя их кэшированные копии и файлы из Центра обновления.";
             CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/restoreSysFilesImage.png");
         }
-        [RelayCommand]
-        private static async Task RestoreSysFiles()
+        [RelayCommand] private static async Task RestoreSysFiles()
         {
             const string commandCmd = "sfc /scannow";
             const string commandPowerShell = "dism /Online /Cleanup-Image /RestoreHealth";
-            await WinCmdService.RunInCMDNoWait(commandCmd, true);
-            WinCmdService.RunInPowerShell(commandPowerShell);
+            await WinCmdService.RunInCMD(commandCmd, true, false);
+            WinCmdService.RunInPowerShell(commandPowerShell, "-Command");
         }
         ////
-        [RelayCommand]
-        private void AppVerifierInfo()
+        [RelayCommand] private void AppVerifierInfo()
         {
             TextInfoFix = "Устранение проблем с компонентами Windows, вызванных неправильными путями к .dll-файлам, которые загромождают диск C:\\. Исправление автоматически обновит соответствующие записи реестра, чтобы они указывали на правильные расположения файлов, и перемещает файлы в соответствующий каталог C:\\Windows\\SysWOW64.";
             CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/appVerifierImage.png");
         }
 
-        [RelayCommand]
-        private static async Task ReplaceAppVerifierDll()
+        [RelayCommand] private static async Task ReplaceAppVerifierDll()
         {
             const string bat = """
 @echo off
@@ -388,7 +352,7 @@ endlocal
         [RelayCommand]
         private async Task DownloadOffice()
         {
-            LoadingStatus = true;
+            Instance.LoadingStatus = true;
             const string fileName = "Configuration.xml";
             System.Text.StringBuilder fileContent = new("""
 <Configuration ID="aa6c9195-b180-4d82-b808-48f4d1886c73">
@@ -445,20 +409,15 @@ endlocal
         }
         #endregion
         #region cleanup
-        [ObservableProperty]
-        private string? tempSizeText;
-        [RelayCommand]
-        private void UpdateTempSizeText() => TempSizeText = TempCleanService.NormalizeByteSize(TempCleanService.GetFullTempSize());
-        [RelayCommand]
-        private static void CheckWinSxS() => WinCmdService.RunInPowerShell("Dism.exe /Online /Cleanup-Image /AnalyzeComponentStore", "-NoExit");
-        [RelayCommand]
-        private static void CleanupWinSxS()
+        [ObservableProperty] private string? tempSizeText;
+        [RelayCommand] private void UpdateTempSizeText() => TempSizeText = TempCleanService.NormalizeByteSize(TempCleanService.GetFullTempSize());
+        [RelayCommand] private static void CheckWinSxS() => WinCmdService.RunInPowerShell("Dism.exe /Online /Cleanup-Image /AnalyzeComponentStore", "-NoExit -Command");
+        [RelayCommand] private static void CleanupWinSxS()
         {
-            WinCmdService.RunInPowerShell("Dism.exe /Online /Cleanup-Image /StartComponentCleanup");
-            WinCmdService.RunInPowerShell("Dism.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase");
+            WinCmdService.RunInPowerShell("Dism.exe /Online /Cleanup-Image /StartComponentCleanup", "-Command");
+            WinCmdService.RunInPowerShell("Dism.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase", "-Command");
         }
-        [RelayCommand]
-        private async Task CleanupTemp()
+        [RelayCommand] private async Task CleanupTemp()
         {
             LoadingStatus = true;
             long prevSize = TempCleanService.GetFullTempSize();
@@ -471,11 +430,11 @@ endlocal
         #endregion
         #endregion
         #region decor
-        [ObservableProperty]
-        private string? tabItemDescription;
+        [ObservableProperty] private string? tabItemDescription;
 
-        [RelayCommand]
-        private void TabMouseEnter(object sender)
+        [ObservableProperty] private bool loadingStatus; // decor for lasting operations
+
+        [RelayCommand] private void TabMouseEnter(object sender)
         {
             if (sender is TabItem tabItem)
             {
@@ -492,8 +451,7 @@ endlocal
                 };
             }
         }
-        [RelayCommand]
-        private void TabMouseLeave() => TabItemDescription = string.Empty;
+        [RelayCommand] private void TabMouseLeave() => TabItemDescription = string.Empty;
         #endregion
     }
 }

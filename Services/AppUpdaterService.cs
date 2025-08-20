@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -18,10 +17,11 @@ public static class AppUpdaterService
     {
         using var client = new HttpClient();
         var json = await client.GetStringAsync(VersionCheckUrl);
-        var info = JsonSerializer.Deserialize<UpdateInfo>(json);
-
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var info = JsonSerializer.Deserialize<UpdateInfo>(json, options);
+        if (info == null || info.Version == null || info.DownloadUrl == null) return null;
         var current = typeof(AppUpdaterService).Assembly.GetName().Version?.ToString() ?? "0.0.0.0";
-        return Version.Parse(info!.Version) > Version.Parse(current) ? info : null;
+        return Version.Parse(info.Version) > Version.Parse(current) ? info : null;
     }
 
     public static async Task ApplyUpdateAsync(UpdateInfo info)
@@ -50,17 +50,14 @@ del "%~f0"
 
         await File.WriteAllTextAsync(batchFile, batContent);
 
-        await WinCmdService.RunInCMDNoWait(batchFile);
+        await WinCmdService.RunInCMD(batchFile, waitForExit:false);
 
         Application.Current.Dispatcher.Invoke(Application.Current.Shutdown);
     }
 
     public class UpdateInfo
     {
-        [JsonPropertyName("version")]
-        public string Version { get; set; }
-
-        [JsonPropertyName("downloadUrl")]
-        public string DownloadUrl { get; set; }
+        public string? Version { get; set; }
+        public string? DownloadUrl { get; set; }
     }
 }

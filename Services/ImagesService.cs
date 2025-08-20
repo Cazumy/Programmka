@@ -32,7 +32,7 @@ namespace Programmka.Services
             {
                 bitmap.BeginInit();
                 bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.StreamSource = new MemoryStream(); // MemoryStream нужен, чтобы поток можно было закрыть
+                bitmap.StreamSource = new MemoryStream();
                 fs.CopyTo(bitmap.StreamSource);
                 bitmap.StreamSource.Position = 0;
                 bitmap.EndInit();

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Programmka.Services
 {
@@ -27,46 +28,31 @@ namespace Programmka.Services
                 await process.WaitForExitAsync();
             }
         }
-        public static async Task RunInCMD(string command, bool visible = false)
+        public static async Task RunInCMD(string command, bool isVisible = false, bool waitForExit = true)
         {
             var startInfo = new ProcessStartInfo
             {
                 FileName = "cmd.exe",
                 Arguments = $"/c {command}",
-                RedirectStandardOutput = !visible,
-                RedirectStandardError = !visible,
-                UseShellExecute = visible,
-                CreateNoWindow = !visible
+                UseShellExecute = isVisible,
+                RedirectStandardOutput = !isVisible,
+                RedirectStandardError = !isVisible,
+                CreateNoWindow = !isVisible
             };
 
             using var process = new Process { StartInfo = startInfo };
 
-            if (!visible)
-            {
-                process.Start();
-                await process.WaitForExitAsync();
-            }
-            else
-            {
-                process.Start();
-                process.WaitForExit();
-            }
-        }
-        public static Task RunInCMDNoWait(string command, bool visible = false)
-        {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "cmd.exe",
-                Arguments = $"/c {command}",
-                RedirectStandardOutput = false,
-                RedirectStandardError = false,
-                UseShellExecute = true,
-                CreateNoWindow = !visible
-            };
+            process.Start();
 
-            Process.Start(startInfo);
-            return Task.CompletedTask;
+            if (waitForExit)
+            {
+                if (isVisible)
+                    process.WaitForExit();      // синхронное ожидание
+                else
+                    await process.WaitForExitAsync(); // асинхронное ожидание
+            }
         }
+
         public static Task RunBat(string script, bool visible = false)
         {
             string tempBatPath = Path.Combine(Path.GetTempPath(), "bat.bat");
@@ -91,7 +77,7 @@ namespace Programmka.Services
                         File.Delete(tempBatPath);
                     }
                 }
-                catch{}
+                catch (Exception e) { MessageBox.Show(e.Message); }
             });
             return Task.CompletedTask;
         }
@@ -102,7 +88,7 @@ namespace Programmka.Services
             Process.Start(new ProcessStartInfo
             {
                 FileName = shell,
-                Arguments = $"{arguments} -Command \"{command}\"",
+                Arguments = $"{arguments} \"{command}\"",
                 UseShellExecute = true,
                 Verb = "runas"
             });

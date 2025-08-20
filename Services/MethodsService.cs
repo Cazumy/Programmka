@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace Programmka.Services
@@ -21,9 +22,9 @@ namespace Programmka.Services
                 value2 = value3 = 1;
             }
 
-            RegeditService.CreateReg(RegistryHive.LocalMachine, subkey, "ConsentPromptBehaviorAdmin", "", value1);
-            RegeditService.CreateReg(RegistryHive.LocalMachine, subkey, "EnableLUA", "", value2);
-            RegeditService.CreateReg(RegistryHive.LocalMachine, subkey, "PromptOnSecureDesktop", "", value3);
+            RegeditService.CreateReg(RegistryHive.LocalMachine, subkey, "ConsentPromptBehaviorAdmin", value: value1);
+            RegeditService.CreateReg(RegistryHive.LocalMachine, subkey, "EnableLUA", value: value2);
+            RegeditService.CreateReg(RegistryHive.LocalMachine, subkey, "PromptOnSecureDesktop", value: value3);
         }
         public static bool CheckExeNotifications()
         {
@@ -39,7 +40,7 @@ namespace Programmka.Services
             const string subkey = @"SYSTEM\CurrentControlSet\Control\Power";
             const string key = "HibernateEnabled";
             int iValue = value ? 0 : 1;
-            RegeditService.CreateReg(RegistryHive.LocalMachine, subkey, key, "", iValue);
+            RegeditService.CreateReg(RegistryHive.LocalMachine, subkey, key, value: iValue);
         }
         public static bool CheckHibernation()
         {
@@ -60,9 +61,9 @@ namespace Programmka.Services
             {
                 value1 = "1"; value2 = "6"; value3 = "10";
             }
-            RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, key1, "", value1);
-            RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, key2, "", value2);
-            RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, key3, "", value3);
+            RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, key1, value: value1);
+            RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, key2, value: value2);
+            RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, key3, value: value3);
         }
         public static bool CheckMouseAcceleration()
         {
@@ -77,7 +78,7 @@ namespace Programmka.Services
             const string subkey = @"Control Panel\Accessibility\StickyKeys";
             const string key = "Flags";
             string keyValue = value ? "506" : "511";
-            RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, key, "", keyValue);
+            RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, key, value: keyValue);
         }
         public static bool CheckKeySticking()
         {
@@ -98,7 +99,7 @@ namespace Programmka.Services
             else
             {
                 const string key = "Removable Drives";
-                RegeditService.CreateReg(RegistryHive.LocalMachine, subkey, key, dir, "");
+                RegeditService.CreateReg<String>(RegistryHive.LocalMachine, subkey, key, dir);
             }
         }
         public static bool CheckDuplicate()
@@ -112,7 +113,7 @@ namespace Programmka.Services
             const string key = "HubMode";
             if (value)
             {
-                RegeditService.CreateReg(RegistryHive.LocalMachine, subKey, key, "", "1");
+                RegeditService.CreateReg(RegistryHive.LocalMachine, subKey, key, value: "1");
             }
             else
             {
@@ -122,7 +123,7 @@ namespace Programmka.Services
         public static bool CheckQuickAccess()
         {
             const string subKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer", key = "HubMode";
-            return RegeditService.ContainsReg(RegistryHive.CurrentUser, subKey, key);
+            return RegeditService.ContainsReg(RegistryHive.LocalMachine, subKey, key);
         }
         public static void SetObjects3D(bool value)
         {
@@ -187,19 +188,19 @@ namespace Programmka.Services
             const string key = "HideFileExt";
             if (value)
             {
-                RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, key, "", "");
+                RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, key, value: "");
             }
             else
             {
                 const int iValue = 1;
-                RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, key, "", iValue);
+                RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, key, value: iValue);
             }
         }
         public static bool CheckFileExtensions()
         {
             const string subkey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced";
             const string key = "HideFileExt";
-            return RegeditService.ContainsRegValue(RegistryHive.CurrentUser, subkey, key, "");
+            return RegeditService.ContainsRegValue(RegistryHive.CurrentUser, subkey, key, input: "");
         }
         #endregion
         #region desktop
@@ -273,7 +274,7 @@ namespace Programmka.Services
                 {
                     Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), wallpaperFolder), true);
                 }
-                catch (Exception) { }
+                catch (Exception e) { Debug.WriteLine(e); }
             }
         }
         public static void SetWallpaperCompression(bool value)
@@ -289,8 +290,8 @@ namespace Programmka.Services
         public static void SetHighlightColor(string rgbValue)
         {
             const string subkey = @"Control Panel\Colors";
-            RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, "Hilight", "", rgbValue);
-            RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, "HotTrackingColor", "", rgbValue);
+            RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, "Hilight", value: rgbValue);
+            RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, "HotTrackingColor", value: rgbValue);
         }
         public static string GetHighlightColor()
         {
