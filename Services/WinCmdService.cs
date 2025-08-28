@@ -82,16 +82,64 @@ namespace Programmka.Services
             return Task.CompletedTask;
         }
 
-        public static void RunInPowerShell(string command, string arguments = "")
+        public static async Task<int> RunInPowerShell(string command, string arguments = "-Command", bool showWindow = false, Action<string>? onLineReceived = null)
         {
             string shell = File.Exists(@"C:\Program Files\PowerShell\7\pwsh.exe") ? "pwsh.exe" : "powershell.exe";
-            Process.Start(new ProcessStartInfo
+
+            if (showWindow) // Запуск в отдельном окне (без перехвата вывода)
             {
-                FileName = shell,
-                Arguments = $"{arguments} \"{command}\"",
-                UseShellExecute = true,
-                Verb = "runas"
-            });
+
+                using var process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = shell,
+                    Arguments = $"{arguments} \"{command}\"",
+                    UseShellExecute = true,
+                    Verb = "runas"
+                });
+                await process.WaitForExitAsync();
+                return process.ExitCode;
+            }
+            else            // Скрытый запуск с перехватом вывода
+            {
+                var tcs = new TaskCompletionSource<int>();
+                var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = shell,
+                        Arguments = $"{arguments} \"{command}\"",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        StandardOutputEncoding = Encoding.GetEncoding(866),
+                        StandardErrorEncoding = Encoding.GetEncoding(866),
+                        CreateNoWindow = true,
+                        Verb = "runas"
+                    },
+                    EnableRaisingEvents = true
+                };
+
+                process.Start();
+
+                var readStdOut = Task.Run(async () =>
+                {
+                    string? line;
+                    while ((line = await process.StandardOutput.ReadLineAsync()) != null)
+                        onLineReceived?.Invoke(line);
+                });
+
+                var readStdErr = Task.Run(async () =>
+                {
+                    string? line;
+                    while ((line = await process.StandardError.ReadLineAsync()) != null)
+                        onLineReceived?.Invoke("[ERR] " + line);
+                });
+
+                await Task.WhenAll(readStdOut, readStdErr, process.WaitForExitAsync());
+                int code = process.ExitCode;
+                process.Dispose();
+                return code;
+            }
         }
     }
 }

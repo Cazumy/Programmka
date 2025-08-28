@@ -9,7 +9,7 @@ namespace Programmka.Services
         /// <summary>
         /// RegistryHive.CurrentUser or RegistryHive.LocalMachine
         /// </summary>
-        public static bool ContainsReg(RegistryHive registryHive, string subkey, string key)
+        public static bool ContainsReg(RegistryHive registryHive, string key, string name)
         {
             var baseKey = registryHive switch
             {
@@ -18,31 +18,31 @@ namespace Programmka.Services
                 _ => null
             };
 
-            using var hkey = baseKey?.OpenSubKey(subkey);
-            return hkey?.GetValue(key) != null;
+            using var hkey = baseKey?.OpenSubKey(key);
+            return hkey?.GetValue(name) != null;
         }
 
         /// <summary>
         /// RegistryHive.CurrentUser or RegistryHive.LocalMachine
         /// </summary>
         ///
-        public static bool ContainsRegValue<T>(RegistryHive hive, string subkey, string key, T? input = default)
+        public static bool ContainsRegValue<T>(RegistryHive registryHive, string key, string name, T? inputValue = default)
         {
-            RegistryKey? baseKey = hive switch
+            RegistryKey? baseKey = registryHive switch
             {
                 RegistryHive.CurrentUser => Registry.CurrentUser,
                 RegistryHive.LocalMachine => Registry.LocalMachine,
                 _ => null
             };
 
-            using var target = baseKey?.OpenSubKey(subkey);
-            var value = target?.GetValue(key);
+            using var target = baseKey?.OpenSubKey(key);
+            var value = target?.GetValue(name);
 
-            return value is T t && t.Equals(input);
+            return value is T t && t.Equals(inputValue);
         }
-        public static T? GetRegValue<T>(RegistryHive hive, string subkey, string key, T? fallback = default)
+        public static T? GetRegValue<T>(RegistryHive registryHive, string key, string name, T? fallback = default)
         {
-            RegistryKey? baseKey = hive switch
+            RegistryKey? baseKey = registryHive switch
             {
                 RegistryHive.CurrentUser => Registry.CurrentUser,
                 RegistryHive.LocalMachine => Registry.LocalMachine,
@@ -51,12 +51,12 @@ namespace Programmka.Services
 
             if (baseKey == null) return fallback;
 
-            using var target = baseKey.OpenSubKey(subkey);
+            using var target = baseKey.OpenSubKey(key);
             if (target == null) return fallback;
 
             try
             {
-                var value = target.GetValue(key);
+                var value = target.GetValue(name);
                 if (value is T tValue)
                 {
                     return tValue;
@@ -72,7 +72,7 @@ namespace Programmka.Services
             return fallback;
         }
 
-        public static void CreateReg<T>(RegistryHive registryHive, string subkey, string key, string dir = "", T? value = default)
+        public static void CreateReg<T>(RegistryHive registryHive, string key, string name, string subkey = "", T? value = default)
         {
             RegistryKey? baseKey = registryHive switch
             {
@@ -82,21 +82,21 @@ namespace Programmka.Services
             };
             if (baseKey == null) return;
 
-            using var target = baseKey.CreateSubKey(subkey);
+            using var target = baseKey.CreateSubKey(key);
             if (target == null) return;
 
-            var registryKey = string.IsNullOrEmpty(dir) ? target : target.CreateSubKey(dir, true);
+            var registryKey = string.IsNullOrEmpty(subkey) ? target : target.CreateSubKey(subkey, true);
 
             if (value == null)
                 return;
 
             if (value is int intValue)
             {
-                registryKey.SetValue(key, intValue, RegistryValueKind.DWord);
+                registryKey.SetValue(name, intValue, RegistryValueKind.DWord);
             }
             else if (value is string strValue)
             {
-                registryKey.SetValue(key, strValue, RegistryValueKind.String);
+                registryKey.SetValue(name, strValue, RegistryValueKind.String);
             }
             ///
             else
@@ -105,27 +105,27 @@ namespace Programmka.Services
             }
         }
 
-        public static void CreateRegDir(string subkey)
+        public static void CreateSubkey(string subkey)
         {
             Registry.LocalMachine.CreateSubKey(subkey);
         }
 
-        public static void DeleteReg(RegistryHive registryHive, string subkey, string key)
+        public static void DeleteReg(RegistryHive registryHive, string key, string name)
         {
             try
             {
                 var baseKey = registryHive == RegistryHive.CurrentUser ? Registry.CurrentUser : Registry.LocalMachine;
-                using var hKey = baseKey.OpenSubKey(subkey, true);
-                hKey?.DeleteValue(key);
+                using var hKey = baseKey.OpenSubKey(key, true);
+                hKey?.DeleteValue(name);
             }
             catch { MessageBox.Show("Something went wrong..."); }
         }
-        public static void DeleteRegDir(string subkey, string dir)
+        public static void DeleteSubkey(string key, string subkey)
         {
             try
             {
-                using var key = Registry.LocalMachine.CreateSubKey(subkey, true);
-                key.DeleteSubKeyTree(dir, false);
+                using var fullKey = Registry.LocalMachine.CreateSubKey(key, true);
+                fullKey.DeleteSubKeyTree(subkey, false);
             }
             catch { MessageBox.Show("Something went wrong..."); }
         }

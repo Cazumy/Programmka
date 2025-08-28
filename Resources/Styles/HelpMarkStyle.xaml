@@ -8,7 +8,7 @@
         <Setter Property="HorizontalAlignment" Value="Right" />
         <Setter Property="Background">
             <Setter.Value>
-                <ImageBrush ImageSource="pack://application:,,,/Programmka;component/Resources/Images/help.png" Stretch="Uniform" />
+                <ImageBrush ImageSource="pack://application:,,,/Programmka;component/Resources/Images/Icons/help.png" Stretch="Uniform" />
             </Setter.Value>
         </Setter>
         <Setter Property="Cursor" Value="Hand" />

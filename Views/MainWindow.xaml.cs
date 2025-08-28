@@ -1,10 +1,7 @@
 ﻿using MahApps.Metro.Controls;
-using Programmka.Services;
 using Programmka.ViewModels;
-using System.Diagnostics;
-using System.IO;
+using System.Text;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using System.Windows.Shell;
 
 namespace Programmka.Views;
@@ -15,7 +12,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = new MainViewModel();
-
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // для поддержки кодировок
         var chrome = new WindowChrome
         {
             CaptionHeight = 0,

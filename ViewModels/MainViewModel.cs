@@ -1,4 +1,5 @@
-﻿#pragma warning disable CS8618
+﻿#pragma warning disable IDE0079 // Удалить ненужное подавление
+#pragma warning disable CS8618
 #pragma warning disable CA1416 // Проверка совместимости платформы
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -9,11 +10,13 @@ using Programmka.Services;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+
 using static Programmka.Services.MethodsService;
 
 namespace Programmka.ViewModels
@@ -44,19 +47,29 @@ namespace Programmka.ViewModels
         }
         [RelayCommand] private async Task MainWindowLoaded()
         {
-            UpdateTempSizeText();
+            UpdateCleanupPageInfo();
 
             AppUpdaterService.UpdateInfo? update = await AppUpdaterService.CheckForUpdateAsync(); // update check
             UpdateAvailable = update != null;
         }
-        [RelayCommand] private static void MainWindowClosing() => DeleteWallpaperTemp(); // deleting all temp files on exit
+        [RelayCommand] private static void MainWindowClosing()          // deleting all (as planned) temp files on exit
+        {
+            if (Directory.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), wallpaperFolder)))
+            {
+                try
+                {
+                    Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), wallpaperFolder), true);
+                }
+                catch (Exception e) { Debug.WriteLine(e); }
+            }
+        }
         [ObservableProperty] private bool updateAvailable;
         [RelayCommand] private static async Task UpdateApp()
         {
             if (Instance.UpdateAvailable)
             {
                 Instance.LoadingStatus = true;
-
+                Instance.TabItemDescription = "Применение обновления...";
                 var mainWindow = Application.Current.MainWindow;
                 if (mainWindow.Content is Panel panel)
                 {
@@ -75,7 +88,9 @@ namespace Programmka.ViewModels
                     }
                 }
 
+#pragma warning disable CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
                 await AppUpdaterService.ApplyUpdateAsync(await AppUpdaterService.CheckForUpdateAsync()); // 100% not null here
+#pragma warning restore CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
             }
         }
         #region tweaks
@@ -100,6 +115,11 @@ namespace Programmka.ViewModels
             offStatus: "Вкл.",
             initial: CheckKeySticking(),
             callback: SetKeySticking);
+        public ToggleAction StartupDelay { get; } = new(
+            onStatus: "Вкл.",
+            offStatus: "Выкл.",
+            initial: CheckStartupDelay(),
+            callback: SetStartupDelay);
         #endregion
         #region explorer
         [RelayCommand] private static void ReloadExplorer()
@@ -146,10 +166,11 @@ namespace Programmka.ViewModels
         [ObservableProperty] private ImageSource wallpaperImageSource;
         private ImageSource normalImageSource;
         private ImageSource compressedImageSource;
+        private const string wallpaperFolder = "ProgrammkaWallpapersTemp";
         public ToggleAction WallpaperCompression { get; }
         private void SetWallpaperImage()
         {
-            var path = LoadWallpaperImage();
+            var path = LoadWallpaperImage(wallpaperFolder);
             normalImageSource = ImagesService.LoadImage(path.Item1); //pack
             compressedImageSource = ImagesService.LoadImage(path.Item2); //file
             UpdateWallpaperImage();
@@ -189,13 +210,18 @@ namespace Programmka.ViewModels
         }).Execute(null);
         #endregion
         #region activations
-        [RelayCommand] private static void ActivateWindows() =>
-            WinCmdService.RunInPowerShell("irm https://get.activated.win | iex", "-Command");
+        [RelayCommand]
+        private static async Task ActivateWindows()
+        {
+            Instance.LoadingStatus = true;
+            await WinCmdService.RunInPowerShell("irm https://get.activated.win | iex");
+            Instance.LoadingStatus = false;
+        }
 
         [RelayCommand] private static void ActivateWinRar()
         {
             Instance.LoadingStatus = true;
-            var dialog = MessageBox.Show("Вы меняли директорию по умолчанию для установки WINRAR?", "Ответьте на вопрос", MessageBoxButton.YesNoCancel);
+            var dialog = HandyControl.Controls.MessageBox.Show("Вы меняли директорию по умолчанию для установки WINRAR?", "Ответьте на вопрос", MessageBoxButton.YesNoCancel);
             string? selectedFolderPath;
             if (dialog == MessageBoxResult.Cancel) { Instance.LoadingStatus = false; Instance.TabItemDescription = "Процесс активации прерван"; return; }
             else if (dialog == MessageBoxResult.No)
@@ -234,57 +260,59 @@ eccb9c18530ee0d147058f8b282a9ccfc31322fafcbb4251940582";
         [ObservableProperty] private string textInfoFix;
 
         [ObservableProperty] private BitmapImage currentInfoImage;
-
         [RelayCommand] public void DeleteTextInfoFix()
         {
             TextInfoFix = "Описание проблемы.";
-            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/infoImageExample.png");
+            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/InfoExamples/info-image-example.png");
         }
         ////
-        [RelayCommand] public void FixHardDisksInfo()
+        [RelayCommand] public void ShowInfoFixHardDisks()
         {
-            TextInfoFix = "Внутренние диски SATA (жесткие диски и твердотельные накопители) могут отображаться в панели задач как съемные носители.\n" +
-                "Перед фиксом прежде всего проверьте наличие доступных обновлений BIOS от производителя компьютера и установите их, если есть.\n" +
-                "При этом фиксе все диски, подключенные через SATA порт будут отображаться как внутренние диски.";
-            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/diskDuplicationPreview.png");
+            TextInfoFix = "Внутренние диски SATA (жесткие диски и твердотельные накопители) могут отображаться как съемные носители.\n" +
+                "Перед фиксом прежде всего проверьте наличие доступных обновлений BIOS.\n" +
+                "При исправлении все диски, подключенные через SATA порт будут отображаться как внутренние диски.";
+            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/InfoExamples/disk-duplication.png");
         }
         [RelayCommand] public static void FixHardDisks() => CommandMiddleware.Run(async () =>
         {
             const string command = "reg add \"HKLM\\SYSTEM\\CurrentControlSet\\Services\\storahci\\Parameters\\Device\" /f /v TreatAsInternalPort /t REG_MULTI_SZ /d \"0\\0 1\\0 2\\0 3\\0 4\\0 5\\0 6\\0 7\\0 8\\0 9\\0 10\\0 11\\0 12\\0 13\\0 14\\0 15\\0 16";
             await WinCmdService.RunInCMD(command);
+            Instance.TabItemDescription = "Исправление применено, перезагрузите ПК";
         }).Execute(null);
         ////
-        [RelayCommand] private void ArrowLabelsInfo()
+        [RelayCommand] private void ShowInfoFixArrowLabels()
         {
             TextInfoFix = "Наиболее вероятная причина - это твик с отключением стрелок на ярлыках, фикс возвращает иконки папок и ярлыков, но также возвращает и стрелки.\n" +
                 "Если фикс не помог, то пройдитесь по базе: перезагрузка ПК, проверка системных файлов и т.д.";
-            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/ArrowLabelsTweakBug.png");
+            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/InfoExamples/arrow-labels-tweak-bug.png");
         }
-        [RelayCommand] public static void ReturnLabelArrows() => CommandMiddleware.Run(() =>
+        [RelayCommand] public static void FixArrowLabels() => CommandMiddleware.Run(() =>
         {
             const string subKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\"; const string dir = "Shell Icons";
-            RegeditService.DeleteRegDir(subKey, dir);
+            RegeditService.DeleteSubkey(subKey, dir);
+            Instance.TabItemDescription = "Исправление применено, перезагрузите ПК";
         }).Execute(null);
         ////
-        [RelayCommand] private void RestoreSysFilesInfo()
+        [RelayCommand] private void ShowInfoRestoreSysFiles()
         {
             TextInfoFix = "Произойдёт проверка и автоматическое восстановление повреждённых системных файлов Windows, используя их кэшированные копии и файлы из Центра обновления.";
-            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/restoreSysFilesImage.png");
+            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/InfoExamples/restore-sys-files.png");
         }
-        [RelayCommand] private static async Task RestoreSysFiles()
+        [RelayCommand] private async Task RestoreSysFiles()
         {
+            LoadingStatus = true;
             const string commandCmd = "sfc /scannow";
             const string commandPowerShell = "dism /Online /Cleanup-Image /RestoreHealth";
             await WinCmdService.RunInCMD(commandCmd, true, false);
-            WinCmdService.RunInPowerShell(commandPowerShell, "-Command");
+            await WinCmdService.RunInPowerShell(commandPowerShell, showWindow: true);
+            LoadingStatus = false;
         }
         ////
-        [RelayCommand] private void AppVerifierInfo()
+        [RelayCommand] private void ShowInfoAppVerifier()
         {
             TextInfoFix = "Устранение проблем с компонентами Windows, вызванных неправильными путями к .dll-файлам, которые загромождают диск C:\\. Исправление автоматически обновит соответствующие записи реестра, чтобы они указывали на правильные расположения файлов, и перемещает файлы в соответствующий каталог C:\\Windows\\SysWOW64.";
-            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/appVerifierImage.png");
+            CurrentInfoImage = ImagesService.LoadImage("pack://application:,,,/Programmka;component/Resources/Images/InfoExamples/app-verifier.png");
         }
-
         [RelayCommand] private static async Task ReplaceAppVerifierDll()
         {
             const string bat = """
@@ -346,6 +374,7 @@ REM End script
 endlocal
 """;
             await WinCmdService.RunBat(bat, false);
+            Instance.TabItemDescription = "Исправление применено";
         }
         #endregion
         #region downloading
@@ -409,13 +438,50 @@ endlocal
         }
         #endregion
         #region cleanup
-        [ObservableProperty] private string? tempSizeText;
-        [RelayCommand] private void UpdateTempSizeText() => TempSizeText = TempCleanService.NormalizeByteSize(TempCleanService.GetFullTempSize());
-        [RelayCommand] private static void CheckWinSxS() => WinCmdService.RunInPowerShell("Dism.exe /Online /Cleanup-Image /AnalyzeComponentStore", "-NoExit -Command");
-        [RelayCommand] private static void CleanupWinSxS()
+        private string cleanupInfoText;
+        public string CleanupInfoText
         {
-            WinCmdService.RunInPowerShell("Dism.exe /Online /Cleanup-Image /StartComponentCleanup", "-Command");
-            WinCmdService.RunInPowerShell("Dism.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase", "-Command");
+            get => cleanupInfoText;
+            set
+            {
+                string? cleanValue = value?.Trim();
+                if (cleanValue == null || cleanValue == cleanupInfoText) return;
+                if (cleanValue.Contains('%'))
+                {
+                    var m = Regex.Match(cleanValue, @"([-+]?\d+(?:\.\d+)?)\s*%");
+                    cleanupInfoText = $"Процедура завершена на {m.Groups[1].Value} %";
+                }
+                else if (cleanValue.Contains("Рекомендуется очистка хранилища компонентов"))
+                {
+                    cleanupInfoText += $"\n{cleanValue}";
+                }
+                OnPropertyChanged();
+            }
+        }
+        public double UsedSpaceCDrive { get; set; }
+        [ObservableProperty] private string? tempSizeText;
+        [RelayCommand] private void UpdateCleanupPageInfo()
+        {
+            TempSizeText = TempCleanService.NormalizeByteSize(TempCleanService.GetFullTempSize());
+            GetDiskCInfo();
+        }
+        [RelayCommand]
+        private async Task CheckWinSxS()
+        {
+            LoadingStatus = true;
+            CleanupInfoText = "Запуск...";
+            await WinCmdService.RunInPowerShell("Dism.exe /Online /Cleanup-Image /AnalyzeComponentStore", onLineReceived: line => CleanupInfoText = line);
+            LoadingStatus = false;
+        }
+        [RelayCommand] private async Task CleanupWinSxS()
+        {
+            LoadingStatus = true;
+            CleanupInfoText = String.Empty;
+            await WinCmdService.RunInPowerShell("Dism.exe /Online /Cleanup-Image /StartComponentCleanup", onLineReceived: line => CleanupInfoText = line);
+            CleanupInfoText = String.Empty;
+            await WinCmdService.RunInPowerShell("Dism.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase", onLineReceived: line => CleanupInfoText = line);
+            UpdateCleanupPageInfo();
+            LoadingStatus = false;
         }
         [RelayCommand] private async Task CleanupTemp()
         {
@@ -423,16 +489,47 @@ endlocal
             long prevSize = TempCleanService.GetFullTempSize();
             await TempCleanService.CleanAllTemp();
             var byteDiff = prevSize - TempCleanService.GetFullTempSize();
-            TabItemDescription = $"Успешно очищено: {TempCleanService.NormalizeByteSize(byteDiff)}";
-            UpdateTempSizeText();
+            CleanupInfoText = $"Успешно очищено: {TempCleanService.NormalizeByteSize(byteDiff)}";
+            UpdateCleanupPageInfo();
             LoadingStatus = false;
+        }
+        private void GetDiskCInfo()
+        {
+            try
+            {
+                var drive = new DriveInfo(Path.GetPathRoot(Environment.SystemDirectory)!);
+                if (drive.IsReady)
+                {
+                    UsedSpaceCDrive = (1 - (drive.AvailableFreeSpace / (double)drive.TotalSize)) * 100;
+                    OnPropertyChanged(nameof(UsedSpaceCDrive));
+                }
+            }
+            catch (Exception e) { Debug.WriteLine(e.Message); }
         }
         #endregion
         #endregion
         #region decor
         [ObservableProperty] private string? tabItemDescription;
-
-        [ObservableProperty] private bool loadingStatus; // decor for lasting operations
+        private bool loadingStatus; // decor for lasting operations
+        private static int loadingCounter;
+        public bool LoadingStatus
+        {
+            get => loadingStatus;
+            set
+            {
+                if (value)
+                {
+                    loadingCounter++;
+                    SetProperty(ref loadingStatus, true);
+                }
+                else
+                {
+                    if (loadingCounter > 0) loadingCounter--;
+                    bool newValue = loadingCounter > 0;
+                    SetProperty(ref loadingStatus, newValue);
+                }
+            }
+        }
 
         [RelayCommand] private void TabMouseEnter(object sender)
         {

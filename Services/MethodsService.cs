@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Diagnostics;
 using System.IO;
 
 namespace Programmka.Services
@@ -34,7 +33,6 @@ namespace Programmka.Services
                 RegeditService.ContainsRegValue<int>(RegistryHive.LocalMachine, subkey, "EnableLUA") &&
                 RegeditService.ContainsRegValue<int>(RegistryHive.LocalMachine, subkey, "PromptOnSecureDesktop");
         }
-
         public static void SetHibernation(bool value)
         {
             const string subkey = @"SYSTEM\CurrentControlSet\Control\Power";
@@ -86,6 +84,30 @@ namespace Programmka.Services
             const string key = "Flags";
             return RegeditService.ContainsRegValue(RegistryHive.CurrentUser, subkey, key, "506");
         }
+        public static void SetStartupDelay(bool value)
+        {
+            const string key = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Serialize";
+            const string name1 = "StartupDelayInMSec";
+            const string name2 = "WaitforIdleState";
+            if (value)
+            {
+                RegeditService.CreateReg(RegistryHive.CurrentUser, key, name1, value: 0);
+                RegeditService.CreateReg(RegistryHive.CurrentUser, key, name2, value: 0);
+            }
+            else
+            {
+                RegeditService.DeleteReg(RegistryHive.CurrentUser, key, name1);
+                RegeditService.DeleteReg(RegistryHive.CurrentUser, key, name2);
+            }
+        }
+        public static bool CheckStartupDelay()
+        {
+            const string key = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Serialize";
+            const string name1 = "StartupDelayInMSec";
+            const string name2 = "WaitforIdleState";
+            return RegeditService.ContainsRegValue(RegistryHive.CurrentUser, key, name1, 0) &&
+                   RegeditService.ContainsRegValue(RegistryHive.CurrentUser, key, name2, 0);
+        }
         #endregion
         #region explorer
         public static void SetDiskDuplicate(bool value)
@@ -94,7 +116,7 @@ namespace Programmka.Services
             const string dir = "{F5FB2C77-0E2F-4A16-A381-3E560C68BC83}";
             if (value)
             {
-                RegeditService.DeleteRegDir(subkey, dir);
+                RegeditService.DeleteSubkey(subkey, dir);
             }
             else
             {
@@ -130,12 +152,12 @@ namespace Programmka.Services
             if (value)
             {
                 const string subKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\"; const string dir = "{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}";
-                RegeditService.DeleteRegDir(subKey, dir);
+                RegeditService.DeleteSubkey(subKey, dir);
             }
             else
             {
                 const string subKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}";
-                RegeditService.CreateRegDir(subKey);
+                RegeditService.CreateSubkey(subKey);
             }
         }
         public static bool Check3DObjects()
@@ -188,7 +210,7 @@ namespace Programmka.Services
             const string key = "HideFileExt";
             if (value)
             {
-                RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, key, value: "");
+                RegeditService.CreateReg(RegistryHive.CurrentUser, subkey, key, value: 0);
             }
             else
             {
@@ -200,7 +222,7 @@ namespace Programmka.Services
         {
             const string subkey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced";
             const string key = "HideFileExt";
-            return RegeditService.ContainsRegValue(RegistryHive.CurrentUser, subkey, key, input: "");
+            return RegeditService.ContainsRegValue(RegistryHive.CurrentUser, subkey, key, 0);
         }
         #endregion
         #region desktop
@@ -216,7 +238,7 @@ namespace Programmka.Services
             else
             {
                 const string subKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\"; const string dir = "Shell Icons";
-                RegeditService.DeleteRegDir(subKey, dir);
+                RegeditService.DeleteSubkey(subKey, dir);
             }
         }
         public static bool CheckLabels()
@@ -225,8 +247,7 @@ namespace Programmka.Services
             return RegeditService.ContainsReg(RegistryHive.LocalMachine, subKey, key);
         }
 
-        private const string wallpaperFolder = "ProgrammkaWallpapersTemp";
-        public static (string, string) LoadWallpaperImage()
+        public static (string, string) LoadWallpaperImage(string wallpaperFolder)
         {
             const string registryKey = @"Control Panel\Desktop";
             const string registryValue = "WallPaper";
@@ -265,17 +286,6 @@ namespace Programmka.Services
             image.Save(outputStream, encoder);
 
             return (wallpaper!, compressedWallpaper);
-        }
-        public static void DeleteWallpaperTemp()
-        {
-            if (Directory.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), wallpaperFolder)))
-            {
-                try
-                {
-                    Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), wallpaperFolder), true);
-                }
-                catch (Exception e) { Debug.WriteLine(e); }
-            }
         }
         public static void SetWallpaperCompression(bool value)
         {

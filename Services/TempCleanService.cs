@@ -108,7 +108,12 @@ namespace Programmka.Services
             [DllImport("user32.dll")] static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
 
             Type? shellType = Type.GetTypeFromProgID("Shell.Application");
-            dynamic? shell = Activator.CreateInstance(shellType);
+            dynamic? shell;
+            try
+            {
+                shell = Activator.CreateInstance(shellType!);
+            } catch { return; }
+
             shell?.NameSpace(0x0a).Self.InvokeVerb("open"); // 0x0A = корзина
 
             IntPtr hwnd;

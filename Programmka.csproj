@@ -14,8 +14,8 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Resources\RS1.ico</ApplicationIcon>
     <Platforms>AnyCPU;x64</Platforms>
-    <SupportedOSPlatformVersion>10.0.26100.0</SupportedOSPlatformVersion>
-    <AssemblyVersion>1.0.3</AssemblyVersion>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <AssemblyVersion>1.0.4</AssemblyVersion>
     <FileVersion>1.0.3</FileVersion>
     <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
   </PropertyGroup>
@@ -26,12 +26,34 @@
     <None Remove="Resources\Images\background.png" />
     <None Remove="Resources\Images\diskDuplicationPreview.png" />
     <None Remove="Resources\Images\help.png" />
+    <None Remove="Resources\Images\Icons\activation.png" />
+    <None Remove="Resources\Images\Icons\cleanup.png" />
+    <None Remove="Resources\Images\Icons\desktop.png" />
+    <None Remove="Resources\Images\Icons\disk.png" />
+    <None Remove="Resources\Images\Icons\download.png" />
+    <None Remove="Resources\Images\Icons\fix.png" />
+    <None Remove="Resources\Images\Icons\help.png" />
+    <None Remove="Resources\Images\Icons\hibernation.png" />
+    <None Remove="Resources\Images\Icons\home.png" />
+    <None Remove="Resources\Images\Icons\label-arrow.png" />
+    <None Remove="Resources\Images\Icons\label.png" />
+    <None Remove="Resources\Images\Icons\network.png" />
     <None Remove="Resources\Images\infoImageExample.png" />
     <None Remove="Resources\Images\restoreSysFilesImage.png" />
+    <None Remove="Resources\Images\startupDelay.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Resources\RS1.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Images\Icons\label-arrow.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\InfoExamples\arrow-labels-tweak-bug.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
@@ -44,112 +66,109 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\Images\3d_objects.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\activation.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\appVerifierImage.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\ArrowLabelsTweakBug.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="Resources\Images\background.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\cleanup.png">
+    <Resource Include="Resources\Images\Icons\3d-objects.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\desktop.png">
+    <Resource Include="Resources\Images\Icons\activation.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\disk.png">
+    <Resource Include="Resources\Images\Icons\cleanup.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\diskDuplicationPreview.png">
+    <Resource Include="Resources\Images\Icons\desktop.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\download.png">
+    <Resource Include="Resources\Images\Icons\disk.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\exeNotifications.png">
+    <Resource Include="Resources\Images\Icons\download.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\fileExtensions.png">
+    <Resource Include="Resources\Images\Icons\exe-notifications.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\file_explorer.png">
+    <Resource Include="Resources\Images\Icons\file-extensions.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\fix.png">
+    <Resource Include="Resources\Images\Icons\file-explorer.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\help.png">
+    <Resource Include="Resources\Images\Icons\fix.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\hibernation.png">
+    <Resource Include="Resources\Images\Icons\help.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\home.png">
+    <Resource Include="Resources\Images\Icons\hibernation.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\infoImageExample.png">
+    <Resource Include="Resources\Images\Icons\home.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\keySticking.png">
+    <Resource Include="Resources\Images\Icons\key-sticking.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\label.png">
+    <Resource Include="Resources\Images\Icons\label.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\mouseAcceleration.png">
+    <Resource Include="Resources\Images\Icons\mouse-acceleration.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\network.png">
+    <Resource Include="Resources\Images\Icons\network.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\quick_access.png">
+    <Resource Include="Resources\Images\Icons\quick-access.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\restoreSysFilesImage.png">
+    <Resource Include="Resources\Images\Icons\startup-delay.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\Showcase\3d.png">
+    <Resource Include="Resources\Images\Icons\wallpaper-compression.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\Showcase\bot.png">
+    <Resource Include="Resources\Images\Icons\win10-logo.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\Showcase\dd.png">
+    <Resource Include="Resources\Images\InfoExamples\app-verifier.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\Showcase\explorer_ex.png">
+    <Resource Include="Resources\Images\InfoExamples\disk-duplication.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\Showcase\explorer_noex.png">
+    <Resource Include="Resources\Images\InfoExamples\info-image-example.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\InfoExamples\restore-sys-files.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\Showcase\3d-objects.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\Showcase\bottom.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\Showcase\disk-duplicate.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\Showcase\explorer-ex.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\Showcase\explorer-no-ex.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Images\Showcase\head.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\Showcase\labelarrow.png">
+    <Resource Include="Resources\Images\Icons\msedge.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\Showcase\msedge.png">
+    <Resource Include="Resources\Images\Showcase\network-icon.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\Showcase\ni.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\Showcase\qa.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\WallpaperCompression.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\win10.png">
+    <Resource Include="Resources\Images\Showcase\quick-access.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
