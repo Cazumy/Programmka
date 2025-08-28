@@ -16,7 +16,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <AssemblyVersion>1.0.4</AssemblyVersion>
-    <FileVersion>1.0.3</FileVersion>
+    <FileVersion>1.0.4</FileVersion>
     <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
   </PropertyGroup>
 

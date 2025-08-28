@@ -116,7 +116,7 @@
                             VerticalAlignment="Center"
                             FontSize="18"
                             Foreground="White"
-                            Text="Programmka 1.0.3" />
+                            Text="Programmka 1.0.4" />
                         <Button
                             Width="260"
                             Command="{Binding UpdateAppCommand}"
