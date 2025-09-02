@@ -214,7 +214,7 @@ namespace Programmka.ViewModels
         private static async Task ActivateWindows()
         {
             Instance.LoadingStatus = true;
-            await WinCmdService.RunInPowerShell("irm https://get.activated.win | iex");
+            await WinCmdService.RunInPowerShell("irm https://get.activated.win | iex", showWindow: true); 132132
             Instance.LoadingStatus = false;
         }
 

@@ -48,6 +48,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\Images\background.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\Images\Icons\label-arrow.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
@@ -66,9 +69,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\Images\background.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="Resources\Images\Icons\3d-objects.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>

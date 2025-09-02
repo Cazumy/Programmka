@@ -251,41 +251,35 @@ namespace Programmka.Services
         {
             const string registryKey = @"Control Panel\Desktop";
             const string registryValue = "WallPaper";
-
             using RegistryKey? key = Registry.CurrentUser.OpenSubKey(registryKey);
-            string? wallpaper = null;
+            string? wallpaperPath = null;
             if (key != null)
             {
-                wallpaper = key.GetValue(registryValue)?.ToString();
+                wallpaperPath = key.GetValue(registryValue)?.ToString();
             }
-
-            bool wallpaperExists = !string.IsNullOrEmpty(wallpaper) && File.Exists(wallpaper);
-            if (!wallpaperExists)
+            string appFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), wallpaperFolder);
+            if (!Directory.Exists(appFolder)) Directory.CreateDirectory(appFolder);
+            if (string.IsNullOrEmpty(wallpaperPath) || !File.Exists(wallpaperPath))
             {
-                string appFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), wallpaperFolder);
-                if (!Directory.Exists(appFolder)) Directory.CreateDirectory(appFolder);
+                var existingWallpaperPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Microsoft\\Windows\\Themes\\CachedFiles");
+                var dirInfo = new DirectoryInfo(existingWallpaperPath);
 
-                wallpaper = Path.Combine(appFolder, "default_background.jpg");
+                wallpaperPath = Path.Combine(appFolder, "default_background.jpg");
 
-                if (!File.Exists(wallpaper))
+                if (!File.Exists(wallpaperPath))
                 {
-                    using Stream? resourceStream = System.Windows.Application.GetResourceStream(new Uri("/Resources/Images/background.jpg", UriKind.Relative))?.Stream;
-                    using var fileStream = new FileStream(wallpaper, FileMode.Create, FileAccess.Write);
-                    resourceStream?.CopyTo(fileStream);
+                    File.Copy(dirInfo.GetFiles()[0].FullName, wallpaperPath);
                 }
             }
 
-            string appCacheFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), wallpaperFolder);
-            if (!Directory.Exists(appCacheFolder)) Directory.CreateDirectory(appCacheFolder);
+            string compressedWallpaper = Path.Combine(appFolder, "compressed_wallpaper.jpg");
 
-            string compressedWallpaper = Path.Combine(appCacheFolder, "compressed_wallpaper.jpg");
-
-            using var image = SixLabors.ImageSharp.Image.Load(wallpaper!);
+            using var image = SixLabors.ImageSharp.Image.Load(wallpaperPath!);
             var encoder = new SixLabors.ImageSharp.Formats.Jpeg.JpegEncoder { Quality = 35 };
             using var outputStream = new FileStream(compressedWallpaper, FileMode.Create);
             image.Save(outputStream, encoder);
 
-            return (wallpaper!, compressedWallpaper);
+            return (wallpaperPath!, compressedWallpaper);
         }
         public static void SetWallpaperCompression(bool value)
         {
