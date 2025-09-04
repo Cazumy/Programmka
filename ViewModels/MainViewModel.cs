@@ -164,22 +164,41 @@ namespace Programmka.ViewModels
             callback: SetLabelArrows);
 
         [ObservableProperty] private ImageSource wallpaperImageSource;
-        private ImageSource normalImageSource;
-        private ImageSource compressedImageSource;
+        private ImageSource? normalImageSource;
+        private ImageSource? compressedImageSource;
         private const string wallpaperFolder = "ProgrammkaWallpapersTemp";
         public ToggleAction WallpaperCompression { get; }
         private void SetWallpaperImage()
         {
             var path = LoadWallpaperImage(wallpaperFolder);
-            normalImageSource = ImagesService.LoadImage(path.Item1); //pack
-            compressedImageSource = ImagesService.LoadImage(path.Item2); //file
+            try
+            {
+                normalImageSource = ImagesService.LoadImage(path.Item1); //pack
+                compressedImageSource = ImagesService.LoadImage(path.Item2); //file
+            } catch { Debug.WriteLine("No wallpaper exist"); }
             UpdateWallpaperImage();
         }
         private void UpdateWallpaperImage()
         {
             if (WallpaperCompression == null) { return; }
+            if(normalImageSource == null || compressedImageSource == null)
+            {
+                var dv = new DrawingVisual();
+                using (var dc = dv.RenderOpen())
+                {
+                    dc.DrawRectangle(Brushes.Black, null, new Rect(0, 0, 1920, 1080));
+                }
+                var blackImage = new RenderTargetBitmap(1920, 1080, 96, 96, PixelFormats.Pbgra32);
+                blackImage.Render(dv);
+                normalImageSource = compressedImageSource = blackImage;
+            }
             WallpaperImageSource = WallpaperCompression.IsChecked ? normalImageSource : compressedImageSource;
         }
+        public ToggleAction NewsWidget { get; } = new(
+            onStatus: "Выкл.",
+            offStatus: "Вкл.",
+            initial: CheckNewsWidget(),
+            callback: SetNewsWidget);
 
         [ObservableProperty] private SolidColorBrush selectedBrush;
         partial void OnSelectedBrushChanged(SolidColorBrush value)
@@ -214,7 +233,7 @@ namespace Programmka.ViewModels
         private static async Task ActivateWindows()
         {
             Instance.LoadingStatus = true;
-            await WinCmdService.RunInPowerShell("irm https://get.activated.win | iex", showWindow: true); 132132
+            await WinCmdService.RunInPowerShell("irm https://get.activated.win | iex", showWindow: false);
             Instance.LoadingStatus = false;
         }
 

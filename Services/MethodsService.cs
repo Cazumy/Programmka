@@ -246,40 +246,40 @@ namespace Programmka.Services
             const string subKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons", key = "29";
             return RegeditService.ContainsReg(RegistryHive.LocalMachine, subKey, key);
         }
-
-        public static (string, string) LoadWallpaperImage(string wallpaperFolder)
+        /// <summary>
+        /// Create two images in params folder, but first delete all files in this folder with folder itself (if its already exist with\without files)
+        /// </summary>
+        /// <param name="wallpaperFolder">name of temp folder for images</param>
+        /// <returns>images path (string, string) or (null, null) if there is no wallpaper image in current Windows10</returns>
+        public static (string?, string?) LoadWallpaperImage(string wallpaperFolder)
         {
-            const string registryKey = @"Control Panel\Desktop";
-            const string registryValue = "WallPaper";
-            using RegistryKey? key = Registry.CurrentUser.OpenSubKey(registryKey);
-            string? wallpaperPath = null;
-            if (key != null)
-            {
-                wallpaperPath = key.GetValue(registryValue)?.ToString();
-            }
+            string? wallpaperPath;
+
             string appFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), wallpaperFolder);
-            if (!Directory.Exists(appFolder)) Directory.CreateDirectory(appFolder);
-            if (string.IsNullOrEmpty(wallpaperPath) || !File.Exists(wallpaperPath))
+            if (Directory.Exists(appFolder))
             {
-                var existingWallpaperPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Microsoft\\Windows\\Themes\\CachedFiles");
-                var dirInfo = new DirectoryInfo(existingWallpaperPath);
-
-                wallpaperPath = Path.Combine(appFolder, "default_background.jpg");
-
-                if (!File.Exists(wallpaperPath))
+                foreach (var file in Directory.GetFiles(appFolder))
                 {
-                    File.Copy(dirInfo.GetFiles()[0].FullName, wallpaperPath);
+                    File.Delete(file);
                 }
+                Directory.Delete(appFolder);
             }
+            Directory.CreateDirectory(appFolder);
+            wallpaperPath = Path.Combine(appFolder, "default_background.jpg");
+            var existingPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Microsoft\\Windows\\Themes\\TranscodedWallpaper");
+            if (File.Exists(existingPath))
+            {
+                File.Copy(existingPath, wallpaperPath);
+            }
+            else { return (null, null); }
 
             string compressedWallpaper = Path.Combine(appFolder, "compressed_wallpaper.jpg");
-
             using var image = SixLabors.ImageSharp.Image.Load(wallpaperPath!);
             var encoder = new SixLabors.ImageSharp.Formats.Jpeg.JpegEncoder { Quality = 35 };
             using var outputStream = new FileStream(compressedWallpaper, FileMode.Create);
             image.Save(outputStream, encoder);
 
-            return (wallpaperPath!, compressedWallpaper);
+            return (wallpaperPath, compressedWallpaper);
         }
         public static void SetWallpaperCompression(bool value)
         {
@@ -302,6 +302,15 @@ namespace Programmka.Services
             const string subkey = @"Control Panel\Colors";
             return RegeditService.GetRegValue<string>(RegistryHive.CurrentUser, subkey, "Hilight")!;
         }
+        public static void SetNewsWidget(bool condition)
+        {
+            const string key = "Software\\Microsoft\\Windows\\CurrentVersion\\Feeds";
+            const string name = "ShellFeedsTaskbarViewMode";
+            int value = condition ? 2 : 0;
+            RegeditService.CreateReg(RegistryHive.CurrentUser, key, name, value: value);
+        }
+        public static bool CheckNewsWidget() =>
+            RegeditService.ContainsRegValue<int>(RegistryHive.CurrentUser, "Software\\Microsoft\\Windows\\CurrentVersion\\Feeds", "ShellFeedsTaskbarViewMode", 2);
         #endregion
     }
 }

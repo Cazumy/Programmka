@@ -368,6 +368,14 @@
                                         Tag="pack://application:,,,/Programmka;component/Resources/Images/Icons/wallpaper-compression.png" />
                                     <ToggleButton IsChecked="{Binding WallpaperCompression.IsChecked}" />
                                 </Grid>
+                                <Grid Margin="0,0,0,8">
+                                    <ContentControl
+                                        styles:TextProperties.StatusText="{Binding NewsWidget.StatusText}"
+                                        Content="Виджет новости и интересы"
+                                        Style="{StaticResource ToggleButtonBackgroundStyle}"
+                                        Tag="pack://application:,,,/Programmka;component/Resources/Images/Icons/wallpaper-compression.png" />
+                                    <ToggleButton IsChecked="{Binding NewsWidget.IsChecked}" />
+                                </Grid>
                                 <Grid Height="232" Margin="0,0,0,10">
                                     <hc:ColorPicker x:Name="ColorPicker" SelectedBrush="{Binding SelectedBrush, Mode=TwoWay}" />
                                     <Border
