@@ -171,11 +171,14 @@ namespace Programmka.ViewModels
         private void SetWallpaperImage()
         {
             var path = LoadWallpaperImage(wallpaperFolder);
+#pragma warning disable CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
             try
             {
                 normalImageSource = ImagesService.LoadImage(path.Item1); //pack
                 compressedImageSource = ImagesService.LoadImage(path.Item2); //file
-            } catch { Debug.WriteLine("No wallpaper exist"); }
+            }
+#pragma warning restore CS8604
+            catch { Debug.WriteLine("No wallpaper exist"); }
             UpdateWallpaperImage();
         }
         private void UpdateWallpaperImage()
@@ -437,7 +440,9 @@ endlocal
   <RemoveMSI />
 </Configuration>
 """);
-            File.WriteAllText(@"C:\Program Files\Microsoft Office\" + fileName, fileContent.ToString());
+            const string officePath = @"C:\Program Files\Microsoft Office\";
+            if (!Directory.Exists(officePath)) { Directory.CreateDirectory(officePath); }
+            File.WriteAllText(officePath + fileName, fileContent.ToString());
 
             const string urlOffice = "https://officecdn.microsoft.com/pr/wsus/setup.exe";
             using var httpClient = new System.Net.Http.HttpClient();

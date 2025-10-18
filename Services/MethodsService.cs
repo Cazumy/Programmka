@@ -310,7 +310,7 @@ namespace Programmka.Services
             RegeditService.CreateReg(RegistryHive.CurrentUser, key, name, value: value);
         }
         public static bool CheckNewsWidget() =>
-            RegeditService.ContainsRegValue<int>(RegistryHive.CurrentUser, "Software\\Microsoft\\Windows\\CurrentVersion\\Feeds", "ShellFeedsTaskbarViewMode", 2);
+            RegeditService.ContainsRegValue(RegistryHive.CurrentUser, "Software\\Microsoft\\Windows\\CurrentVersion\\Feeds", "ShellFeedsTaskbarViewMode", 2);
         #endregion
     }
 }

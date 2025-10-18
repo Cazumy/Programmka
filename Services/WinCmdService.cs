@@ -47,7 +47,7 @@ namespace Programmka.Services
             if (waitForExit)
             {
                 if (isVisible)
-                    process.WaitForExit();      // синхронное ожидание
+                    process.WaitForExit();            // синхронное ожидание
                 else
                     await process.WaitForExitAsync(); // асинхронное ожидание
             }

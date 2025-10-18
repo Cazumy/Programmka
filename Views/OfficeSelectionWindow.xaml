@@ -5,7 +5,6 @@
     xmlns:hc="https://handyorg.github.io/handycontrol"
     Width="480"
     Height="270"
-    Background="Transparent"
     AllowsTransparency="True"
     MouseLeftButtonDown="Window_MouseLeftButtonDown"
     ResizeMode="NoResize"
@@ -29,8 +28,12 @@
         </Style>
     </Window.Resources>
     <Grid Background="Transparent">
-        <Border Background="#54626f" CornerRadius="5" BorderThickness="3" BorderBrush="Black">
-            <Grid >
+        <Border
+            Background="#54626f"
+            BorderBrush="Black"
+            BorderThickness="3"
+            CornerRadius="5">
+            <Grid>
                 <Button
                     Width="26"
                     Height="26"
