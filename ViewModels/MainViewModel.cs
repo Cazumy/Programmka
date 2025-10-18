@@ -93,6 +93,7 @@ namespace Programmka.ViewModels
 #pragma warning restore CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
             }
         }
+        [ObservableProperty] private string programmVersion = "Programmka 1.0.5";
         #region tweaks
         #region base
         public ToggleAction ExeNotifications { get; } = new(
